@@ -3,6 +3,7 @@ import { Regulation, useLeaveStore } from '@/stores/leave'
 import { ref } from 'vue'
 import TextContent from '@/components/TextContent.vue'
 import CaretDown from '@/assets/icons/caret-down.svg'
+import RowInfo from '@/components/RowInfo.vue'
 
 defineProps<{
     regulation: Regulation
@@ -26,17 +27,13 @@ const toggle = () => expanded.value = !expanded.value
         <td :class="{[$style.days]: true, [$style.maxed]: leaveStore.daysUsedByRegulation(regulation.id, false) === regulation.daysOff }" v-if="regulation.secondParent">{{ leaveStore.daysUsedByRegulation(regulation.id, false) }} / {{ regulation.daysOff }}</td>
         <td v-if="!regulation.secondParent" :class="$style.na">N/A</td>
     </tr>
-    <tr v-if="expanded">
-        <td colspan="3" :class="$style.infoTd">
-            <TextContent :class="$style.info">
-                <p>Official title: {{ regulation.officialTitle }}</p>
-                <ul>
-                    <li v-for="line in regulation.description">{{ line }}</li>
-                </ul>
-                <p>More info on <a target="_blank" :href="regulation.url">rijksoverheid.nl</a></p>
-            </TextContent>
-        </td>
-    </tr>
+    <RowInfo v-if="expanded">
+        <p>Official title: {{ regulation.officialTitle }}</p>
+        <ul>
+            <li v-for="line in regulation.description">{{ line }}</li>
+        </ul>
+        <p>More info on <a target="_blank" :href="regulation.url">rijksoverheid.nl</a></p>
+    </RowInfo>
 </template>
 
 <style lang="scss" module>
@@ -56,17 +53,6 @@ tfoot td {
 
 .maxed {
     background: #FCC;
-}
-
-.infoTd {
-    padding: 0 !important;
-}
-
-.info {
-    padding: 16px 16px 1px;
-    margin-bottom: 24px;
-    box-shadow: 0 1px 10px rgba(0, 0, 0, 0.4);
-    border-radius: 5px;
 }
 
 .expand {

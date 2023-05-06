@@ -55,7 +55,7 @@ const defaultRegulations: Regulation[] = [
 		dailySalaryMax: uwvMaximumDagloon,
 		officialTitle: 'Bevallingsverlof',
 		description: [
-			'For the mom, who has given birth',
+			'For the mom, who has given birth.',
 			'Between 10 and 12 weeks, depending on when you use your zwangerschapsverlof. If you\'ve used 4 weeks zwangerschapsverlof, you get 12 weeks bevallingsverlof. If you\'ve used 5, you get 13. If you\'ve used 6, you get 12. In this calculator, 12 is assumed.',
 			'Paid by UWV, at 100% of your normal salary, but capped at the UWV maximum of ' + uwvMaximumDagloon + ' euros per day.'
 		],
@@ -132,6 +132,11 @@ const defaultRegulations: Regulation[] = [
 
 const defaultPresets: Preset[] = [
 	{
+		title: 'As little as possible',
+		mom: getCombinedMinimumDays(true),
+		secondParent: getCombinedMinimumDays(false),
+	},
+	{
 		title: 'Everything immediately',
 		mom: getCombinedMinimumDays(true).concat(
 			divideOverWeeks(totalFlexibleDays(true), 5)
@@ -148,11 +153,6 @@ const defaultPresets: Preset[] = [
 		secondParent: getCombinedMinimumDays(false).concat(5).concat(
 			monthlySwitch(totalFlexibleDays(false) - 5, 5)
 		),
-	},
-	{
-		title: 'As little as possible',
-		mom: getCombinedMinimumDays(true),
-		secondParent: getCombinedMinimumDays(false),
 	},
 	{
 		title: 'Part-timers, mom works most',
