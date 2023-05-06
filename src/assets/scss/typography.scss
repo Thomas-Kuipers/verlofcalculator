@@ -1,0 +1,77 @@
+@use "variables";
+
+@mixin largeTitle {
+    font-size: 26px;
+    font-weight: variables.$fontWeightSemiBold;
+    line-height: 32px;
+    letter-spacing: -.4px;
+}
+
+@mixin title1 {
+    font-size: 22px;
+    font-weight: variables.$fontWeightSemiBold;
+    line-height: 26px;
+    letter-spacing: -.3px;
+}
+
+@mixin title2 {
+    font-size: 20px;
+    font-weight: variables.$fontWeightSemiBold;
+    line-height: 22px;
+    letter-spacing: -.2px;
+}
+
+@mixin title3 {
+    font-size: 15px;
+    font-weight: variables.$fontWeightSemiBold;
+    line-height: 20px;
+    letter-spacing: -.1px;
+}
+
+@mixin headline {
+    font-size: 15px;
+    font-weight: variables.$fontWeightSemiBold;
+    line-height: 19px;
+}
+
+@mixin body {
+    font-size: 15px;
+    font-weight: variables.$fontWeightRegular;
+    line-height: 19px;
+}
+
+@mixin callout {
+    font-size: 12px;
+    font-weight: variables.$fontWeightSemiBold;
+    line-height: 15px;
+}
+
+@mixin subhead {
+    font-size: 11px;
+    font-weight: variables.$fontWeightSemiBold;
+    line-height: 14px;
+}
+
+@mixin footnote {
+    font-size: 10px;
+    font-weight: variables.$fontWeightSemiBold;
+    line-height: 13px;
+}
+
+@mixin caption1 {
+    font-size: 10px;
+    font-weight: variables.$fontWeightRegular;
+    line-height: 13px;
+}
+
+@mixin caption2 {
+    font-size: 10px;
+    font-weight: variables.$fontWeightSemiBold;
+    line-height: 13px;
+}
+
+@mixin tableGroupHeader {
+    @include caption1;
+    color: variables.$lightLabel2;
+    text-transform: uppercase;
+}

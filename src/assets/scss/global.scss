@@ -1,0 +1,13 @@
+@use 'typography';
+
+body {
+    font-family: sans-serif;
+    @include typography.body
+}
+
+html,
+body,
+#app {
+    width: 100vw;
+    min-height: 100vh;
+}
