@@ -46,7 +46,7 @@ interface Leave {
 const defaultRegulations: Regulation[] = [
 	{
 		id: 'delivery',
-		title: 'Delivery leave',
+		title: 'Birth leave for mom',
 		daysOff: 12 * 5,
 		fixedDaysOff: [5, 5, 5, 5, 5, 5],
 		mom: true,
@@ -63,7 +63,7 @@ const defaultRegulations: Regulation[] = [
 	},
 	{
 		id: 'birth',
-		title: 'Birth leave',
+		title: 'Birth leave for partner',
 		daysOff: 5,
 		fixedDaysOff: [5],
 		mom: false,
