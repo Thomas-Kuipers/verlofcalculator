@@ -384,23 +384,51 @@ export const useLeaveStore = defineStore('leave', {
 	}
 })
 
+export function getNormalIncomePerDay(grossYearlySalary: number): number {
+	return grossYearlySalary / officalAverageWorkingDaysPerYear
+}
+
+function payoutPerDayForParameters(
+	percentageOfSalary: number,
+	dailySalaryMax: number | null,
+	normalIncomePerDay: number
+): number {
+	const percentageWise = percentageOfSalary / 100 * normalIncomePerDay
+
+	if (dailySalaryMax === null) {
+		return percentageWise
+	} else {
+		return Math.min(dailySalaryMax, percentageWise)
+	}
+}
+
+export function payoutPerDayForRegulation(
+	regulation: Regulation,
+	normalIncomePerDay: number
+): number {
+	return payoutPerDayForParameters(
+		regulation.percentageOfSalary,
+		regulation.dailySalaryMax,
+		normalIncomePerDay
+	)
+}
+
 function missedIncomeForParametersPerDay(
 	percentageOfSalary: number,
 	dailySalaryMax: number | null,
 	grossYearlySalary: number
 ): number {
-	const dagloon = grossYearlySalary / officalAverageWorkingDaysPerYear
-	const percentageWise = percentageOfSalary / 100 * dagloon
-
-	if (dailySalaryMax === null) {
-		return dagloon - percentageWise
-	} else {
-		return dagloon - Math.min(dailySalaryMax, percentageWise)
-	}
+	const dagloon = getNormalIncomePerDay(grossYearlySalary)
+	const payout = payoutPerDayForParameters(percentageOfSalary, dailySalaryMax, dagloon)
+	return dagloon - payout
 }
 
-function missedIncomeForRegulationPerDay(regulation: Regulation, grossYearlySalary: number): number {
-	return missedIncomeForParametersPerDay(regulation.percentageOfSalary, regulation.dailySalaryMax, grossYearlySalary)
+export function missedIncomeForRegulationPerDay(regulation: Regulation, grossYearlySalary: number): number {
+	return missedIncomeForParametersPerDay(
+		regulation.percentageOfSalary,
+		regulation.dailySalaryMax,
+		grossYearlySalary
+	)
 }
 
 function totalFlexibleDays(mom: boolean): number {

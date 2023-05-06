@@ -1,24 +1,13 @@
 <script lang="ts" setup>
 import { computed } from 'vue'
+import { formatMoney } from '@/helpers/formatMoney'
 
 const props = defineProps<{
     value: number | null
     hideZero?: boolean
 }>()
 
-const formatted = computed(() => {
-    if (props.value === null) {
-        return ''
-    }
-
-    const formatter = new Intl.NumberFormat('nl-NL', {
-        style: 'currency',
-        currency: 'EUR',
-        maximumFractionDigits: 0
-    })
-
-    return formatter.format(props.value)
-})
+const formatted = computed(() => formatMoney(props.value))
 </script>
 
 <template>
