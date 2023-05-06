@@ -57,7 +57,7 @@ defineProps<{
 
     a {
         text-decoration: underline;
-        color: variables.$green2;
+        color: royalblue;
     }
 }
 

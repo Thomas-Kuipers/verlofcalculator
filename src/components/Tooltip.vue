@@ -58,7 +58,7 @@ function onMouseLeave() {
     background: white;
     border: 1px solid variables.$lightSeparator;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.16);
-    border-radius: variables.$borderRadius300;
+    border-radius: 6px;
     padding: 8px;
     z-index: 9999;
     max-width: 400px;

@@ -69,9 +69,3 @@
     font-weight: variables.$fontWeightSemiBold;
     line-height: 13px;
 }
-
-@mixin tableGroupHeader {
-    @include caption1;
-    color: variables.$lightLabel2;
-    text-transform: uppercase;
-}
