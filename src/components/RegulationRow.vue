@@ -57,6 +57,7 @@ tfoot td {
 
 .expand {
     position: relative;
+    text-decoration: underline;
 }
 
 .caret {
