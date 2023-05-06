@@ -45,7 +45,7 @@ function onMouseEnter(option: number) {
 			:disabled="minimumDays && option < minimumDays"
 			:class="{[$style.button]: true, [$style.active]: days === option}"
             @mouseenter="() => onMouseEnter(option)"
-			@click="() => leaveStore.setDays(weekNumber, option, mom)">
+			@mousedown="() => leaveStore.setDays(weekNumber, option, mom)">
 			{{ option }}
 		</button>
 	</div>

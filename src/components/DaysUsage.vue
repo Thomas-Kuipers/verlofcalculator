@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { useLeaveStore } from '@/stores/leave'
+import RegulationRow from '@/components/RegulationRow.vue'
 
 const leaveStore = useLeaveStore()
 </script>
@@ -15,13 +16,10 @@ const leaveStore = useLeaveStore()
         <th>Mom</th>
         <th>Second parent</th>
     </tr>
-    <tr v-for="regulation in leaveStore.regulations">
-        <td><a :href="regulation.url" target="_blank">{{ regulation.title }}</a></td>
-        <td :class="{[$style.days]: true, [$style.maxed]: leaveStore.daysUsedByRegulation(regulation.id, true) === regulation.daysOff }" v-if="regulation.mom">{{ leaveStore.daysUsedByRegulation(regulation.id, true) }} / {{ regulation.daysOff }}</td>
-        <td v-if="!regulation.mom" :class="$style.na">N/A</td>
-        <td :class="{[$style.days]: true, [$style.maxed]: leaveStore.daysUsedByRegulation(regulation.id, false) === regulation.daysOff }" v-if="regulation.secondParent">{{ leaveStore.daysUsedByRegulation(regulation.id, false) }} / {{ regulation.daysOff }}</td>
-        <td v-if="!regulation.secondParent" :class="$style.na">N/A</td>
-    </tr>
+    <RegulationRow
+        v-for="regulation in leaveStore.regulations"
+        :regulation="regulation"
+    />
     <tr>
         <td>Total days off</td>
         <td>{{ leaveStore.totalDaysUsed(true) }}</td>
@@ -34,21 +32,5 @@ const leaveStore = useLeaveStore()
 
 .title {
     @include typography.title2;
-}
-
-.na {
-	opacity: .3;
-	background: #999;
-}
-tfoot td {
-	border-top: 1px solid #ddd;
-}
-
-.days {
-	background: #CFC;
-}
-
-.maxed {
-	background: #FCC;
 }
 </style>

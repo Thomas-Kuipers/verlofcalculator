@@ -18,6 +18,8 @@ export interface Regulation {
 	percentageOfSalary: number
 	dailySalaryMax: number | null
 	url: string
+	officialTitle: string
+	description: string[]
 }
 
 export interface Preset {
@@ -51,6 +53,12 @@ const defaultRegulations: Regulation[] = [
 		secondParent: false,
 		percentageOfSalary: 100,
 		dailySalaryMax: uwvMaximumDagloon,
+		officialTitle: 'Bevallingsverlof',
+		description: [
+			'For the mom, who has given birth',
+			'Between 10 and 12 weeks, depending on when you use your zwangerschapsverlof. If you\'ve used 4 weeks zwangerschapsverlof, you get 12 weeks bevallingsverlof. If you\'ve used 5, you get 13. If you\'ve used 6, you get 12. In this calculator, 12 is assumed.',
+			'Paid by UWV, at 100% of your normal salary, but capped at the UWV maximum of ' + uwvMaximumDagloon + ' euros per day.'
+		],
 		url: 'https://www.rijksoverheid.nl/onderwerpen/zwangerschapsverlof-en-bevallingsverlof/vraag-en-antwoord/zwangerschapsverlof-en-bevallingsverlof-berekenen'
 	},
 	{
@@ -62,6 +70,11 @@ const defaultRegulations: Regulation[] = [
 		secondParent: true,
 		percentageOfSalary: 100,
 		dailySalaryMax: null,
+		officialTitle: 'Geboorteverlof (voor partners)',
+		description: [
+			'1 Week for the second parent.',
+			'Paid by your employer, at 100% of your normal salary.'
+		],
 		url: 'https://www.rijksoverheid.nl/onderwerpen/geboorteverlof-en-partnerverlof/geboorteverlof-voor-partners'
 	},
 	{
@@ -73,6 +86,11 @@ const defaultRegulations: Regulation[] = [
 		secondParent: true,
 		percentageOfSalary: 70,
 		dailySalaryMax: 0.7 * uwvMaximumDagloon,
+		officialTitle: 'Aanvullend geboorteverlof',
+		description: [
+			'5 Weeks for the second parent.',
+			'Paid by UWV, at 70% of your normal salary. It\'s also capped at 70% of the UWV maximum, so it can never be higher than ' + Math.round(0.7 * uwvMaximumDagloon) + ' per day.'
+		],
 		url: 'https://www.rijksoverheid.nl/onderwerpen/geboorteverlof-en-partnerverlof/geboorteverlof-voor-partners',
 	},
 	{
@@ -84,6 +102,13 @@ const defaultRegulations: Regulation[] = [
 		secondParent: true,
 		percentageOfSalary: 70,
 		dailySalaryMax: 0.7 * uwvMaximumDagloon,
+		officialTitle: 'Betaald ouderschapsverlof',
+		description: [
+			'9 Weeks total.',
+			'Valid for both mom and second parent.',
+			'Paid by UWV, at 70% of your normal salary. It\'s also capped at 70% of the UWV maximum, so it can never be higher than ' + Math.round(0.7 * uwvMaximumDagloon) + ' per day.',
+			'Must be used within 1 year of the birth.'
+		],
 		url: 'https://www.rijksoverheid.nl/onderwerpen/ouderschapsverlof/vraag-en-antwoord/wanneer-heb-ik-recht-op-betaald-ouderschapsverlof'
 	},
 	{
@@ -95,6 +120,12 @@ const defaultRegulations: Regulation[] = [
 		secondParent: true,
 		percentageOfSalary: 0,
 		dailySalaryMax: null,
+		officialTitle: 'Onbetaald ouderschapsverlof',
+		description: [
+			'17 Weeks total.',
+			'Valid for both mom and second parent.',
+			'Not paid at all.'
+		],
 		url: 'https://www.rijksoverheid.nl/onderwerpen/ouderschapsverlof/vraag-en-antwoord/wanneer-heb-ik-recht-op-betaald-ouderschapsverlof'
 	}
 ]

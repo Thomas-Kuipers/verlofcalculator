@@ -17,7 +17,7 @@ import Financial from '@/components/Financial.vue'
         </header>
         <main :class="$style.main">
             <Calendar />
-            <aside>
+            <aside :class="$style.aside">
                 <Presets />
                 <table :class="$style.table">
                     <DaysUsage />
@@ -31,6 +31,7 @@ import Financial from '@/components/Financial.vue'
                     <h2>Feedback</h2>
                     <p>Notice any mistakes? Any other ideas how to improve this further?</p>
                     <p>Email me at <a href="mailto:thomas@webvalid.nl">thomas@webvalid.nl</a></p>
+                    <p>If you're a nerd, you can submit a pull request at <a href="https://github.com/Thomas-Kuipers/verlofcalculator">github.com/Thomas-Kuipers/verlofcalculator</a></p>
                 </TextContent>
             </aside>
         </main>
@@ -49,10 +50,17 @@ import Financial from '@/components/Financial.vue'
 
 .table {
     margin-bottom: 24px;
+    margin-right: 16px;
+    width: calc(100% - 16px);
 
     th {
         font-weight: bold;
         white-space: nowrap;
+    }
+
+    td:first-child,
+    th:first-child {
+        width: 200px;
     }
 
     td,
@@ -69,6 +77,10 @@ import Financial from '@/components/Financial.vue'
         color: royalblue;
         text-decoration: underline;
     }
+}
+
+.aside {
+    flex-grow: 1;
 }
 
 .spacer {
