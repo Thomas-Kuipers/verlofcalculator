@@ -54,7 +54,7 @@ const salarySecondParent = computed(() => {
     const payoutPerDay = payoutPerDayForRegulation(props.regulation, normalIncomePerDay)
     const missedIncomePerDay = missedIncomeForRegulationPerDay(props.regulation, yearlySalary)
 
-    return `The second parent gets paid ${formatMoney(payoutPerDay)} per day, while normally getting paid ${formatMoney(normalIncomePerDay)}, meaning they miss out on ${formatMoney(missedIncomePerDay)} per day.`
+    return `The partner gets paid ${formatMoney(payoutPerDay)} per day, while normally getting paid ${formatMoney(normalIncomePerDay)}, meaning they miss out on ${formatMoney(missedIncomePerDay)} per day.`
 })
 </script>
 

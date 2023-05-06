@@ -74,7 +74,7 @@ const defaultRegulations: Regulation[] = [
 		dailySalaryMax: null,
 		officialTitle: 'Geboorteverlof (voor partners)',
 		description: [
-			'1 Week for the second parent.',
+			'1 Week for the partner.',
 			'Paid by your employer, at 100% of your normal salary.'
 		],
 		url: 'https://www.rijksoverheid.nl/onderwerpen/geboorteverlof-en-partnerverlof/geboorteverlof-voor-partners'
@@ -90,7 +90,7 @@ const defaultRegulations: Regulation[] = [
 		dailySalaryMax: 0.7 * uwvMaximumDagloon,
 		officialTitle: 'Aanvullend geboorteverlof',
 		description: [
-			'5 Weeks for the second parent.',
+			'5 Weeks for the partner.',
 			'Paid by UWV, at 70% of your normal salary. It\'s also capped at 70% of the UWV maximum, so it can never be higher than ' + Math.round(0.7 * uwvMaximumDagloon) + ' per day.'
 		],
 		url: 'https://www.rijksoverheid.nl/onderwerpen/geboorteverlof-en-partnerverlof/geboorteverlof-voor-partners',
@@ -107,7 +107,7 @@ const defaultRegulations: Regulation[] = [
 		officialTitle: 'Betaald ouderschapsverlof',
 		description: [
 			'9 Weeks total.',
-			'Valid for both mom and second parent.',
+			'Valid for both mom and the partner.',
 			'Paid by UWV, at 70% of your normal salary. It\'s also capped at 70% of the UWV maximum, so it can never be higher than ' + Math.round(0.7 * uwvMaximumDagloon) + ' per day.',
 			'Must be used within 1 year of the birth.'
 		],
@@ -125,7 +125,7 @@ const defaultRegulations: Regulation[] = [
 		officialTitle: 'Onbetaald ouderschapsverlof',
 		description: [
 			'17 Weeks total.',
-			'Valid for both mom and second parent.',
+			'Valid for both mom and the partner.',
 			'Not paid at all.'
 		],
 		url: 'https://www.rijksoverheid.nl/onderwerpen/ouderschapsverlof/vraag-en-antwoord/wanneer-heb-ik-recht-op-betaald-ouderschapsverlof'
@@ -166,7 +166,7 @@ const defaultPresets: Preset[] = [
 		),
 	},
 	{
-		title: 'Part-timers, second parent works most',
+		title: 'Part-timers, partner works most',
 		mom: getCombinedMinimumDays(true).concat(
 			divideOverWeeks(totalFlexibleDays(true), 3)
 		),

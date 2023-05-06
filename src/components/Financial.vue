@@ -16,7 +16,7 @@ const leaveStore = useLeaveStore()
     <tr>
         <th />
         <th>Mom</th>
-        <th>Second parent</th>
+        <th>Partner</th>
     </tr>
     <tr>
         <td>Gross yearly salary</td>

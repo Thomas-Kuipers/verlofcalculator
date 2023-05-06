@@ -12,7 +12,7 @@ const leaveStore = useLeaveStore()
 			<th>Week</th>
 			<th>Date</th>
 			<th>Days off mom</th>
-			<th>Days off second parent</th>
+			<th>Days off partner</th>
             <th>Days childcare</th>
 		</tr>
 		</thead>

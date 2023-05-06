@@ -14,7 +14,7 @@ const leaveStore = useLeaveStore()
     <tr>
         <th>Regulation</th>
         <th>Mom</th>
-        <th>Second parent</th>
+        <th>Partner</th>
     </tr>
     <RegulationRow
         v-for="regulation in leaveStore.regulations"

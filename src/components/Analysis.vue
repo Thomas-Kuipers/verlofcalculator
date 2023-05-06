@@ -9,9 +9,9 @@ const dayCountSentence = computed<string>(() => {
 	const totalDaysOffSecondParent = leaveStore.totalDaysUsed(false)
 
 	if (totalDaysOffMom > totalDaysOffSecondParent) {
-		return 'Mom is taking ' + (totalDaysOffMom - totalDaysOffSecondParent) + ' more days off than the second parent.'
+		return 'Mom is taking ' + (totalDaysOffMom - totalDaysOffSecondParent) + ' more days off than the partner.'
 	} else if (totalDaysOffMom < totalDaysOffSecondParent) {
-		return 'The second parent is taking ' + (totalDaysOffSecondParent - totalDaysOffMom) + ' more days off than mom.'
+		return 'The partner is taking ' + (totalDaysOffSecondParent - totalDaysOffMom) + ' more days off than mom.'
 	} else {
 		return 'Both parents are taking the same amount of days off.'
 	}
@@ -41,7 +41,7 @@ const weeksMomSentence = computed<string>(() => {
 })
 
 const weeksSecondParentSentence = computed<string>(() => {
-	return 'The second parent' + weeksSentence(leaveStore.daysPerWeek(false))
+	return 'The partner' + weeksSentence(leaveStore.daysPerWeek(false))
 })
 
 const childcareSentence = computed<string>(() => {
