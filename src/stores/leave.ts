@@ -41,6 +41,7 @@ interface Leave {
 	regulations: Regulation[]
 	weeks: Week[]
 	presets: Preset[]
+	hasDragged: boolean
 }
 
 const defaultRegulations: Regulation[] = [
@@ -198,6 +199,7 @@ export const useLeaveStore = defineStore('leave', {
 		regulations: defaultRegulations,
 		weeks: getWeeksForPreset(defaultPresets[0]),
 		presets: defaultPresets,
+		hasDragged: false,
 	}),
 	getters: {
 		totalDaysUsed(state): (mom: boolean) => number {
@@ -375,6 +377,9 @@ export const useLeaveStore = defineStore('leave', {
 		},
 		setDueDate(dueDate: Date) {
 			this.personal.dueDate = dueDate
+		},
+		setDragged() {
+			this.hasDragged = true
 		}
 	}
 })
