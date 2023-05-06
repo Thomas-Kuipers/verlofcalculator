@@ -58,12 +58,15 @@ tfoot td {
 .expand {
     position: relative;
     text-decoration: underline;
+    width: 100%;
+    text-align: left;
+    padding-right: 30px;
 }
 
 .caret {
     width: 30px;
     position: absolute;
-    left: 100%;
+    right: 0;
     top: -6px;
 }
 </style>
