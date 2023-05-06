@@ -45,11 +45,15 @@ const leaveStore = useLeaveStore()
             </Tooltip>
         </td>
         <DaysWithMissedIncome
+            :normal-income="leaveStore.dailySalary(true)"
+            :payout="leaveStore.payoutAtMaxUwv(true)"
             :missed-income="leaveStore.missedIncomeAtMaxUwv(true)"
             :days="leaveStore.daysOffAtMaxUwv(true)"
         />
         <DaysWithMissedIncome
+            :normal-income="leaveStore.dailySalary(false)"
             :missed-income="leaveStore.missedIncomeAtMaxUwv(false)"
+            :payout="leaveStore.payoutAtMaxUwv(false)"
             :days="leaveStore.daysOffAtMaxUwv(false)"
         />
     </tr>
@@ -60,23 +64,31 @@ const leaveStore = useLeaveStore()
             </Tooltip>
         </td>
         <DaysWithMissedIncome
+            :normal-income="leaveStore.dailySalary(true)"
             :missed-income="leaveStore.missedIncomeAt70Percent(true)"
+            :payout="leaveStore.payoutAt70Percent(true)"
             :days="leaveStore.daysOffAt70Percent(true)"
         />
         <DaysWithMissedIncome
+            :normal-income="leaveStore.dailySalary(false)"
             :missed-income="leaveStore.missedIncomeAt70Percent(false)"
-            :days="leaveStore.daysOffAt70Percent(false)"
+            :payout="leaveStore.payoutAt70Percent(false)"
+            :days="leaveStore.daysOffAtMaxUwv(false)"
         />
     </tr>
     <tr>
         <td>Days off unpaid</td>
         <DaysWithMissedIncome
+            :normal-income="null"
             :missed-income="leaveStore.missedIncomeUnpaid(true)"
             :days="leaveStore.daysOffUnpaid(true)"
+            :payout="null"
         />
         <DaysWithMissedIncome
+            :normal-income="null"
             :missed-income="leaveStore.missedIncomeUnpaid(false)"
             :days="leaveStore.daysOffUnpaid(false)"
+            :payout="null"
         />
     </tr>
     <tr>

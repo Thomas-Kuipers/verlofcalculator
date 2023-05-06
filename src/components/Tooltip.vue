@@ -14,7 +14,7 @@ function onMouseEnter() {
         visible.value = true
         const rect = target.value.getBoundingClientRect()
         position.value = {
-            x: rect.left + (rect.width / 2),
+            x: Math.min(window.innerWidth - 150, rect.left + (rect.width / 2)),
             y: rect.top + window.scrollY
         }
     }
@@ -33,7 +33,7 @@ function onMouseLeave() {
             :style="{ left: position.x + 'px', top: position.y + 'px' }"
             :class="$style.tooltip" >
             <slot v-if="!tooltip" name="tooltip" />
-            <span v-if="tooltip">{{ tooltip }}</span>
+            <span v-if="tooltip" v-html='tooltip.replaceAll("\n", "<br />")' />
         </div>
     </Teleport>
     <div

@@ -307,6 +307,28 @@ export const useLeaveStore = defineStore('leave', {
 				}
 			}
 		},
+		dailySalary(state): (mom: boolean) => number | null {
+			return (mom: boolean) => {
+				const yearly = this.yearlySalary(mom)
+
+				if (yearly === null) {
+					return null
+				}
+
+				return yearly / officalAverageWorkingDaysPerYear
+			}
+		},
+		payoutAtMaxUwv(state): (mom: boolean) => number | null {
+			return (mom: boolean) => {
+				const daily = this.dailySalary(mom)
+
+				if (daily === null) {
+					return null
+				}
+
+				return payoutPerDayForParameters(100, uwvMaximumDagloon, daily)
+			}
+		},
 		missedIncomeAtMaxUwv(state): (mom: boolean) => number | null {
 			return (mom: boolean) => {
 				const yearlySalary = this.yearlySalary(mom)
@@ -327,6 +349,17 @@ export const useLeaveStore = defineStore('leave', {
 				}
 
 				return missedIncomeForParametersPerDay(70, 0.7 * uwvMaximumDagloon, yearlySalary)
+			}
+		},
+		payoutAt70Percent(state): (mom: boolean) => number | null {
+			return (mom: boolean) => {
+				const daily = this.dailySalary(mom)
+
+				if (daily === null) {
+					return null
+				}
+
+				return payoutPerDayForParameters(70, 0.7 * uwvMaximumDagloon, daily)
 			}
 		},
 		missedIncomeUnpaid(state): (mom: boolean) => number | null {
@@ -413,7 +446,7 @@ export function payoutPerDayForRegulation(
 	)
 }
 
-function missedIncomeForParametersPerDay(
+export function missedIncomeForParametersPerDay(
 	percentageOfSalary: number,
 	dailySalaryMax: number | null,
 	grossYearlySalary: number
