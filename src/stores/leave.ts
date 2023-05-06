@@ -57,6 +57,7 @@ const defaultRegulations: Regulation[] = [
 		description: [
 			'For the mom, who has given birth.',
 			'Between 10 and 12 weeks, depending on when you use your zwangerschapsverlof. If you\'ve used 4 weeks zwangerschapsverlof, you get 12 weeks bevallingsverlof. If you\'ve used 5, you get 13. If you\'ve used 6, you get 12. In this calculator, 12 is assumed.',
+			'The first 6 weeks after birth are mandatory to take off. The remaining weeks can be spread out over a period of 30 weeks.',
 			'Paid by UWV, at 100% of your normal salary, but capped at the UWV maximum of ' + uwvMaximumDagloon + ' euros per day.'
 		],
 		url: 'https://www.rijksoverheid.nl/onderwerpen/zwangerschapsverlof-en-bevallingsverlof/vraag-en-antwoord/zwangerschapsverlof-en-bevallingsverlof-berekenen'
