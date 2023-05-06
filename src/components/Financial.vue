@@ -1,8 +1,10 @@
 <script lang="ts" setup>
-import { useLeaveStore } from '@/stores/leave'
+import { useLeaveStore, uwvMaximumDagloon } from '@/stores/leave'
 import TextContent from '@/components/TextContent.vue'
 import Money from '@/components/Money.vue'
 import DaysWithMissedIncome from '@/components/DaysWithMissedIncome.vue'
+import Tooltip from '@/components/Tooltip.vue'
+import { formatMoney } from '@/helpers/formatMoney'
 
 const leaveStore = useLeaveStore()
 </script>
@@ -37,7 +39,11 @@ const leaveStore = useLeaveStore()
         <td>{{ leaveStore.daysOffFullyPaid(false) }}</td>
     </tr>
     <tr>
-        <td>Days off @ <a target="_blank" href="https://www.uwv.nl/particulieren/ziek/ziek-zonder-werkgever/na-ziekmelding/detail/mijn-ziektewet-uitkering/hoe-hoog-is-mijn-ziektewet-uitkering/berekening-van-uw-dagloon#:~:text=Voor%20uw%20uitkering%20geldt%20een,de%20berekening%20van%20uw%20dagloon.">max UWV</a></td>
+        <td>
+            <Tooltip :tooltip="`You get paid 100% of your own daily wage, or the maximum of UWV (${formatMoney(uwvMaximumDagloon)}), whichever is less`">
+                Days off @ <a target="_blank" href="https://www.uwv.nl/particulieren/ziek/ziek-zonder-werkgever/na-ziekmelding/detail/mijn-ziektewet-uitkering/hoe-hoog-is-mijn-ziektewet-uitkering/berekening-van-uw-dagloon#:~:text=Voor%20uw%20uitkering%20geldt%20een,de%20berekening%20van%20uw%20dagloon.">max UWV</a>
+            </Tooltip>
+        </td>
         <DaysWithMissedIncome
             :missed-income="leaveStore.missedIncomeAtMaxUwv(true)"
             :days="leaveStore.daysOffAtMaxUwv(true)"
@@ -48,7 +54,11 @@ const leaveStore = useLeaveStore()
         />
     </tr>
     <tr>
-        <td>Days off @ 70%</td>
+        <td>
+            <Tooltip :tooltip="`You get paid 70% of your own daily wage, or 70% of the maximum of UWV (${formatMoney(0.7 * uwvMaximumDagloon)}), whichever is less`">
+                Days off @ 70%
+            </Tooltip>
+        </td>
         <DaysWithMissedIncome
             :missed-income="leaveStore.missedIncomeAt70Percent(true)"
             :days="leaveStore.daysOffAt70Percent(true)"

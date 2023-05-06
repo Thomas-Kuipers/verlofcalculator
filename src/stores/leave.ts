@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 
-const uwvMaximumDagloon = 256.54
+export const uwvMaximumDagloon = 256.54
 const officalAverageWorkingDaysPerYear = 261
 
 export interface Week {
