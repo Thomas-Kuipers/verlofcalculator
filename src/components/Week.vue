@@ -4,6 +4,7 @@ import DaySelector from '@/components/DaySelector.vue'
 import { getMinimumDaysInWeek } from '@/stores/leave'
 import DueDateSelector from '@/components/DueDateSelector.vue'
 import { computed } from 'vue'
+import { translate } from '@/helpers/translate'
 
 const props = defineProps<{
 	n: number
@@ -34,7 +35,7 @@ const childcareDays = computed(() =>
 			<DueDateSelector v-if="n === 1" />
 			<span v-else >{{ date }}</span>
 		</td>
-		<td title="Try click and drag!">
+		<td>
 			<DaySelector
 				:week-number="n"
 				:days="week.daysOffMom"
@@ -42,7 +43,7 @@ const childcareDays = computed(() =>
 				:mom="true"
 			/>
 		</td>
-        <td title="Try click and drag!">
+        <td>
 			<DaySelector
 				:week-number="n"
 				:days="week.daysOffSecondParent"

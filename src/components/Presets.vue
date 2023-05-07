@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import { Preset, useLeaveStore } from '@/stores/leave'
 import TextContent from '@/components/TextContent.vue'
+import { translate } from '@/helpers/translate'
 
 const leaveStore = useLeaveStore()
 
@@ -11,19 +12,20 @@ function activate(preset: Preset) {
 	})
 }
 
+const { t } = translate()
 </script>
 
 <template>
 	<div :class="$style.container">
         <TextContent>
-            <h2>Examples</h2>
+            <h2>{{ t('examplesTitle') }}</h2>
         </TextContent>
 
 		<button
 			:class="$style.preset"
 			@click="() => activate(preset)"
 			v-for="preset in leaveStore.presets">
-			{{ preset.title }}
+			{{ t(preset.title) }}
 		</button>
 	</div>
 </template>

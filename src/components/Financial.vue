@@ -1,13 +1,14 @@
 <script lang="ts" setup>
 import { useLeaveStore, uwvMaximumDagloon } from '@/stores/leave'
-import TextContent from '@/components/TextContent.vue'
 import Money from '@/components/Money.vue'
 import DaysWithMissedIncome from '@/components/DaysWithMissedIncome.vue'
 import Tooltip from '@/components/Tooltip.vue'
 import { formatMoney } from '@/helpers/formatMoney'
 import RowWithInfo from '@/components/RowWithInfo.vue'
+import { translate } from '@/helpers/translate'
 
 const leaveStore = useLeaveStore()
+const { t } = translate()
 </script>
 
 <template>
@@ -23,12 +24,14 @@ const leaveStore = useLeaveStore()
         <td>Gross yearly salary</td>
         <td>
             <input
+                :class="$style.salaryInput"
                 type="number"
                 @keyup="event => leaveStore.setGrossYearlySalary(parseInt(event.currentTarget.value), true)"
             />
         </td>
         <td>
             <input
+                :class="$style.salaryInput"
                 type="number"
                 @keyup="event => leaveStore.setGrossYearlySalary(parseInt(event.currentTarget.value), false)"
             />
@@ -39,7 +42,7 @@ const leaveStore = useLeaveStore()
         <td>{{ leaveStore.daysOffFullyPaid(true) }}</td>
         <td>{{ leaveStore.daysOffFullyPaid(false) }}</td>
     </tr>
-    <RowWithInfo title="Days off @ max UWV">
+    <RowWithInfo :title="t('daysOffAtMaxUwv')">
         <DaysWithMissedIncome
             :normal-income="leaveStore.dailySalary(true)"
             :payout="leaveStore.payoutAtMaxUwv(true)"
@@ -54,7 +57,7 @@ const leaveStore = useLeaveStore()
         />
         <template #info>
             <ul>
-                <li>You get paid 100% of your own daily wage, or the <a target="_blank" href="https://www.uwv.nl/particulieren/ziek/ziek-zonder-werkgever/na-ziekmelding/detail/mijn-ziektewet-uitkering/hoe-hoog-is-mijn-ziektewet-uitkering/berekening-van-uw-dagloon#:~:text=Voor%20uw%20uitkering%20geldt%20een,de%20berekening%20van%20uw%20dagloon.">maximum of the UWV</a> (<Money :value="uwvMaximumDagloon" />), whichever is less.</li>
+                <li v-html="t('dailySalaryAtMaxUwvDescriptionHtml', { url: 'https://www.uwv.nl/particulieren/ziek/ziek-zonder-werkgever/na-ziekmelding/detail/mijn-ziektewet-uitkering/hoe-hoog-is-mijn-ziektewet-uitkering/berekening-van-uw-dagloon#:~:text=Voor%20uw%20uitkering%20geldt%20een,de%20berekening%20van%20uw%20dagloon.', maxUwv: uwvMaximumDagloon }) "/>
                 <li v-if="leaveStore.dailySalary(true) !== null">Mom will get paid out <Money :value="leaveStore.payoutAtMaxUwv(true)" /> for each of these days. Her normal daily salary is <Money :value="leaveStore.dailySalary(true)" />, so she misses out on <Money :value="leaveStore.missedIncomeAtMaxUwv(true)" /> per day.</li>
                 <li v-if="leaveStore.dailySalary(false) !== null">The partner will get paid out <Money :value="leaveStore.payoutAtMaxUwv(false)" /> for each of these days. Their normal daily salary is <Money :value="leaveStore.dailySalary(false)" />, so they miss out on <Money :value="leaveStore.missedIncomeAtMaxUwv(false)" /> per day.</li>
             </ul>
@@ -106,5 +109,9 @@ const leaveStore = useLeaveStore()
 
 .title {
     @include typography.title2;
+}
+
+.salaryInput {
+    width: 90px;
 }
 </style>

@@ -1,19 +1,21 @@
 <script lang="ts" setup>
 import { useLeaveStore } from '@/stores/leave'
 import Week from '@/components/Week.vue'
+import { translate } from '@/helpers/translate'
 
 const leaveStore = useLeaveStore()
+const { t } = translate()
 </script>
 
 <template>
 	<table :class="$style.table">
 		<thead>
 		<tr>
-			<th>Week</th>
-			<th>Date</th>
-			<th>Days off mom</th>
-			<th>Days off partner</th>
-            <th>Days childcare</th>
+			<th>{{ t('calendarThWeek') }}</th>
+			<th>{{ t('calendarThDate') }}</th>
+			<th>{{ t('calendarThDaysOffMom') }}</th>
+			<th>{{ t('calendarThDaysOffPartner') }}</th>
+            <th>{{ t('calendarThDaysChildcare') }}</th>
 		</tr>
 		</thead>
 		<tbody>

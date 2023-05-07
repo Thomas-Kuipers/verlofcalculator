@@ -4,17 +4,19 @@ import {
     missedIncomeForRegulationPerDay,
     payoutPerDayForRegulation,
     Regulation,
-    useLeaveStore
+    useLeaveStore, uwvMaximumDagloon
 } from '@/stores/leave'
 import { computed } from 'vue'
 import { formatMoney } from '@/helpers/formatMoney'
 import RowWithInfo from '@/components/RowWithInfo.vue'
+import { translate } from '@/helpers/translate'
 
 const props = defineProps<{
     regulation: Regulation
 }>()
 
 const leaveStore = useLeaveStore()
+const { t } = translate()
 
 const salaryMom = computed(() => {
     if (!props.regulation.mom) {
@@ -31,7 +33,11 @@ const salaryMom = computed(() => {
     const payoutPerDay = payoutPerDayForRegulation(props.regulation, normalIncomePerDay)
     const missedIncomePerDay = missedIncomeForRegulationPerDay(props.regulation, yearlySalary)
 
-    return `Mom gets paid ${formatMoney(payoutPerDay)} per day, while normally getting paid ${formatMoney(normalIncomePerDay)}, meaning she misses out on ${formatMoney(missedIncomePerDay)} per day.`
+    return t('payoutNormalAndMissingMom', {
+        payoutPerDay: formatMoney(payoutPerDay),
+        normalIncomePerDay: formatMoney(normalIncomePerDay),
+        missedIncomePerDay: formatMoney(missedIncomePerDay),
+    })
 })
 
 const salarySecondParent = computed(() => {
@@ -49,25 +55,29 @@ const salarySecondParent = computed(() => {
     const payoutPerDay = payoutPerDayForRegulation(props.regulation, normalIncomePerDay)
     const missedIncomePerDay = missedIncomeForRegulationPerDay(props.regulation, yearlySalary)
 
-    return `The partner gets paid ${formatMoney(payoutPerDay)} per day, while normally getting paid ${formatMoney(normalIncomePerDay)}, meaning they miss out on ${formatMoney(missedIncomePerDay)} per day.`
+    return t('payoutNormalAndMissingPartner', {
+        payoutPerDay: formatMoney(payoutPerDay),
+        normalIncomePerDay: formatMoney(normalIncomePerDay),
+        missedIncomePerDay: formatMoney(missedIncomePerDay),
+    })
 })
 </script>
 
 <template>
-    <RowWithInfo :title="regulation.title">
+    <RowWithInfo :title="t(regulation.title)">
         <td :class="{[$style.days]: true, [$style.maxed]: leaveStore.daysUsedByRegulation(regulation.id, true) === regulation.daysOff }" v-if="regulation.mom">{{ leaveStore.daysUsedByRegulation(regulation.id, true) }} / {{ regulation.daysOff }}</td>
         <td v-if="!regulation.mom" :class="$style.na">N/A</td>
         <td :class="{[$style.days]: true, [$style.maxed]: leaveStore.daysUsedByRegulation(regulation.id, false) === regulation.daysOff }" v-if="regulation.secondParent">{{ leaveStore.daysUsedByRegulation(regulation.id, false) }} / {{ regulation.daysOff }}</td>
         <td v-if="!regulation.secondParent" :class="$style.na">N/A</td>
 
         <template #info>
-            <p>Official title: {{ regulation.officialTitle }}</p>
+            <div v-html="t(regulation.info)" />
             <ul>
-                <li v-for="line in regulation.description">{{ line }}</li>
+                <div v-html="t(regulation.infoList, { uwvDailyMax: formatMoney(uwvMaximumDagloon) })" />
                 <li v-if="salaryMom">{{ salaryMom }}</li>
                 <li v-if="salarySecondParent">{{ salarySecondParent }}</li>
             </ul>
-            <p>More info on <a target="_blank" :href="regulation.url">rijksoverheid.nl</a></p>
+            <div v-html="t(regulation.infoLink, { url: regulation.url })" />
         </template>
     </RowWithInfo>
 </template>

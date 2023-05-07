@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia'
+import { MessageSchema } from '@/main'
 
 export const uwvMaximumDagloon = 256.54
 const officalAverageWorkingDaysPerYear = 261
@@ -10,7 +11,7 @@ export interface Week {
 
 export interface Regulation {
 	id: string
-	title: string
+	title: keyof MessageSchema
 	daysOff: number
 	fixedDaysOff: number[]
 	mom: boolean
@@ -18,12 +19,13 @@ export interface Regulation {
 	percentageOfSalary: number
 	dailySalaryMax: number | null
 	url: string
-	officialTitle: string
-	description: string[]
+	info: keyof MessageSchema
+	infoList: keyof MessageSchema
+	infoLink: keyof MessageSchema
 }
 
 export interface Preset {
-	title: string
+	title: keyof MessageSchema
 	mom: number[]
 	secondParent: number[]
 }
@@ -47,99 +49,84 @@ interface Leave {
 const defaultRegulations: Regulation[] = [
 	{
 		id: 'delivery',
-		title: 'Birth leave for mom',
+		title: 'regulationDeliveryTitle',
 		daysOff: 12 * 5,
 		fixedDaysOff: [5, 5, 5, 5, 5, 5],
 		mom: true,
 		secondParent: false,
 		percentageOfSalary: 100,
 		dailySalaryMax: uwvMaximumDagloon,
-		officialTitle: 'Bevallingsverlof',
-		description: [
-			'For the mom, who has given birth.',
-			'Between 10 and 12 weeks, depending on when you use your zwangerschapsverlof. If you\'ve used 4 weeks zwangerschapsverlof, you get 12 weeks bevallingsverlof. If you\'ve used 5, you get 11. If you\'ve used 6, you get 10. In this calculator, 12 is assumed.',
-			'The first 6 weeks after birth are mandatory to take off. The remaining weeks can be spread out over a period of 30 weeks.',
-			'Paid by UWV, at 100% of your normal salary, but capped at the UWV maximum of ' + uwvMaximumDagloon + ' euros per day.'
-		],
+		info: 'regulationDeliveryInfoHtml',
+		infoList: 'regulationDeliveryInfoListHtml',
+		infoLink: 'regulationDeliveryInfoLinkHtml',
 		url: 'https://www.rijksoverheid.nl/onderwerpen/zwangerschapsverlof-en-bevallingsverlof/vraag-en-antwoord/zwangerschapsverlof-en-bevallingsverlof-berekenen'
 	},
 	{
 		id: 'birth',
-		title: 'Birth leave for partner',
+		title: 'regulationBirthTitle',
 		daysOff: 5,
 		fixedDaysOff: [5],
 		mom: false,
 		secondParent: true,
 		percentageOfSalary: 100,
 		dailySalaryMax: null,
-		officialTitle: 'Geboorteverlof (voor partners)',
-		description: [
-			'1 Week for the partner.',
-			'Paid by your employer, at 100% of your normal salary.'
-		],
+		info: 'regulationBirthInfoHtml',
+		infoList: 'regulationBirthInfoListHtml',
+		infoLink: 'regulationBirthInfoLinkHtml',
 		url: 'https://www.rijksoverheid.nl/onderwerpen/geboorteverlof-en-partnerverlof/geboorteverlof-voor-partners'
 	},
 	{
 		id: 'additionalBirth',
-		title: 'Additional birth leave',
+		title: 'regulationAdditionalBirthTitle',
 		daysOff: 5 * 5,
 		fixedDaysOff: [],
 		mom: false,
 		secondParent: true,
 		percentageOfSalary: 70,
 		dailySalaryMax: 0.7 * uwvMaximumDagloon,
-		officialTitle: 'Aanvullend geboorteverlof',
-		description: [
-			'5 Weeks for the partner.',
-			'Paid by UWV, at 70% of your normal salary. It\'s also capped at 70% of the UWV maximum, so it can never be higher than ' + Math.round(0.7 * uwvMaximumDagloon) + ' per day.'
-		],
+		info: 'regulationAdditionalBirthInfoHtml',
+		infoList: 'regulationAdditionalBirthInfoListHtml',
+		infoLink: 'regulationAdditionalBirthInfoLinkHtml',
 		url: 'https://www.rijksoverheid.nl/onderwerpen/geboorteverlof-en-partnerverlof/geboorteverlof-voor-partners',
 	},
 	{
 		id: 'paidParental',
-		title: 'Paid parental leave',
+		title: 'regulationPaidParentalTitle',
 		daysOff: 9 * 5,
 		fixedDaysOff: [],
 		mom: true,
 		secondParent: true,
 		percentageOfSalary: 70,
 		dailySalaryMax: 0.7 * uwvMaximumDagloon,
-		officialTitle: 'Betaald ouderschapsverlof',
-		description: [
-			'9 Weeks total.',
-			'Valid for both mom and the partner.',
-			'Paid by UWV, at 70% of your normal salary. It\'s also capped at 70% of the UWV maximum, so it can never be higher than ' + Math.round(0.7 * uwvMaximumDagloon) + ' per day.',
-			'Must be used within 1 year of the birth.'
-		],
+		info: 'regulationPaidParentalInfoHtml',
+		infoList: 'regulationPaidParentalInfoListHtml',
+		infoLink: 'regulationPaidParentalInfoLinkHtml',
 		url: 'https://www.rijksoverheid.nl/onderwerpen/ouderschapsverlof/vraag-en-antwoord/wanneer-heb-ik-recht-op-betaald-ouderschapsverlof'
 	},
 	{
 		id: 'unpaidParental',
-		title: 'Unpaid parental leave',
+		title: 'regulationUnpaidParentalTitle',
 		daysOff: 17 * 5,
 		fixedDaysOff: [],
 		mom: true,
 		secondParent: true,
 		percentageOfSalary: 0,
 		dailySalaryMax: null,
-		officialTitle: 'Onbetaald ouderschapsverlof',
-		description: [
-			'17 Weeks total.',
-			'Valid for both mom and the partner.',
-			'Not paid at all.'
-		],
+		info: 'regulationUnpaidParentalInfoHtml',
+		infoList: 'regulationUnpaidParentalInfoListHtml',
+		infoLink: 'regulationUnpaidParentalInfoLinkHtml',
 		url: 'https://www.rijksoverheid.nl/onderwerpen/ouderschapsverlof/vraag-en-antwoord/wanneer-heb-ik-recht-op-betaald-ouderschapsverlof'
 	}
 ]
 
 const defaultPresets: Preset[] = [
 	{
-		title: 'As little as possible',
+		title: 'presetAsLittleAsPossible',
 		mom: getCombinedMinimumDays(true),
 		secondParent: getCombinedMinimumDays(false),
 	},
 	{
-		title: 'Everything immediately',
+		title: 'presetEverythingImmediately',
 		mom: getCombinedMinimumDays(true).concat(
 			divideOverWeeks(totalFlexibleDays(true), 5)
 		),
@@ -148,7 +135,7 @@ const defaultPresets: Preset[] = [
 		)
 	},
 	{
-		title: 'Monthly switch',
+		title: 'presetMonthlySwitch',
 		mom: getCombinedMinimumDays(true).concat(
 			monthlySwitch(totalFlexibleDays(true), 5)
 		),
@@ -157,7 +144,7 @@ const defaultPresets: Preset[] = [
 		),
 	},
 	{
-		title: 'Part-timers, mom works most',
+		title: 'presetPartTimersMom',
 		mom: getCombinedMinimumDays(true).concat(
 			divideOverWeeks(totalFlexibleDays(true), 2)
 		),
@@ -166,7 +153,7 @@ const defaultPresets: Preset[] = [
 		),
 	},
 	{
-		title: 'Part-timers, partner works most',
+		title: 'presetPartTimersPartner',
 		mom: getCombinedMinimumDays(true).concat(
 			divideOverWeeks(totalFlexibleDays(true), 3)
 		),
@@ -175,7 +162,7 @@ const defaultPresets: Preset[] = [
 		),
 	},
 	{
-		title: 'Equal part-timers, one day per week babysitter',
+		title: 'presetEqualPartTimers',
 		mom: getCombinedMinimumDays(true).concat(
 			divideOverWeeks(totalFlexibleDays(true), 2)
 		),

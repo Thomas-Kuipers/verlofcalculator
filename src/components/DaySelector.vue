@@ -2,6 +2,7 @@
 import { useLeaveStore } from '@/stores/leave'
 import { onMounted, onUnmounted, ref } from 'vue'
 import Tooltip from '@/components/Tooltip.vue'
+import { translate } from '@/helpers/translate'
 
 const props = defineProps<{
 	weekNumber: number
@@ -38,6 +39,8 @@ function onMouseEnter(option: number) {
         leaveStore.setDays(props.weekNumber, option, props.mom)
     }
 }
+
+const { t } = translate()
 </script>
 
 <template>
@@ -48,7 +51,7 @@ function onMouseEnter(option: number) {
             :class="$style.button"
             @mouseenter="() => onMouseEnter(option)"
             @mousedown="() => leaveStore.setDays(weekNumber, option, mom)">
-            <Tooltip tooltip="Click and drag" v-if="!leaveStore.hasDragged && !(minimumDays && option < minimumDays)">
+            <Tooltip :tooltip="t('clickDrag')" v-if="!leaveStore.hasDragged && !(minimumDays && option < minimumDays)">
                 <span :class="{[$style.buttonContent]: true, [$style.active]: days === option}">
                     {{ option }}
                 </span>

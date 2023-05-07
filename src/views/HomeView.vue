@@ -5,15 +5,19 @@ import Presets from '@/components/Presets.vue'
 import Analysis from '@/components/Analysis.vue'
 import TextContent from '@/components/TextContent.vue'
 import Financial from '@/components/Financial.vue'
-</script>
+import { translate } from '@/helpers/translate'
+import LanguageSelector from '@/components/LanguageSelector.vue'
 
+const { t } = translate()
+</script>
 
 <template>
 	<div :class="$style.container">
         <header :class="$style.header">
             <TextContent>
-                <h1>Parental leave calculator</h1>
+                <h1>{{ t('title') }}</h1>
             </TextContent>
+            <LanguageSelector />
         </header>
         <main :class="$style.main">
             <Calendar />
@@ -41,6 +45,9 @@ import Financial from '@/components/Financial.vue'
 <style lang="scss" module>
 .header {
     padding: 16px 16px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: start;
 }
 
 .main {
