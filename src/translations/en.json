@@ -1,7 +1,5 @@
 {
   "title": "Parental Leave Calculator",
-  "daysOffAtMaxUwv": "Days off {'@'} max UWV",
-  "dailySalaryAtMaxUwvDescriptionHtml": "You get paid 100% of your own daily wage, or the <a target=\"_blank\" href=\"{url}\">maximum of the UWV</a> ({maxUwv}), whichever is less.",
   "calendarThWeek": "Week",
   "calendarThDate": "Date",
   "calendarThDaysOffMom": "Days off mom",
@@ -41,6 +39,19 @@
   "regulationUnpaidParentalInfoHtml": "<p>Official title: Onbetaald ouderschapsverlof</p>",
   "regulationUnpaidParentalInfoListHtml": "<li>'17 Weeks total.</li><li>Valid for both mom and the partner.</li><li>Not paid at all.</li>",
   "regulationUnpaidParentalInfoLinkHtml": "<p>More info on <a target=\"_blank\" href=\"{url}\">rijksoverheid.nl</a></p>",
-  "payoutNormalAndMissingMom": "Mom gets paid {payoutPerDay} per day, while normally getting paid {normalIncomePerDay}, meaning she misses out on {missedIncomePerDay} per day.",
-  "payoutNormalAndMissingPartner": "The partner gets paid {payoutPerDay} per day, while normally getting paid {normalIncomePerDay}, meaning she misses out on {missedIncomePerDay} per day."
+  "payoutNormalAndMissingMom": "Mom gets paid {payoutPerDay} for each of these days. Her normal daily salary is {normalIncomePerDay}, so she misses out on {missedIncomePerDay} per day.",
+  "payoutNormalAndMissingPartner": "The partner gets paid {payoutPerDay} for each of these days. Their normal daily salary is {normalIncomePerDay}, so they miss out on {missedIncomePerDay} per day.",
+  "financialTitle": "Financial",
+  "financialThMom": "Mom",
+  "financialThPartner": "Partner",
+  "financialGrossYearlySalary": "Gross yearly salary",
+  "financialDaysOffFullyPaid": "Days off fully paid",
+  "daysOffAtMaxUwv": "Days off {'@'} max UWV",
+  "dailySalaryAtMaxUwvDescriptionHtml": "You get paid 100% of your daily salary, or the <a target=\"_blank\" href=\"{url}\">maximum of the UWV</a> ({maxUwv}), whichever is less.",
+  "daysOffAtSeventyPercent": "Days off {'@'} 70%",
+  "dailySalaryAtSeventyPercentDescriptionHtml": "You get paid 70% of your daily salary, or 70% of the maximum of UWV ({maxUwvSeventy}), whichever is less.",
+  "daysOffUnpaid": "Days off unpaid",
+  "daysOffUnpaidMomCost": "Mom misses out on {dailySalary} per day.",
+  "daysOffUnpaidPartnerCost": "The partner misses out on {dailySalary} per day.",
+  "totalGrossMissedIncome": "Total gross missed income"
 }

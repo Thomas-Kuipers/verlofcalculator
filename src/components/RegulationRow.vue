@@ -73,7 +73,10 @@ const salarySecondParent = computed(() => {
         <template #info>
             <div v-html="t(regulation.info)" />
             <ul>
-                <div v-html="t(regulation.infoList, { uwvDailyMax: formatMoney(uwvMaximumDagloon) })" />
+                <div v-html="t(regulation.infoList, {
+                    uwvDailyMax: formatMoney(uwvMaximumDagloon),
+                    seventyPercentOfUwvMax: formatMoney(0.7 * uwvMaximumDagloon),
+                })" />
                 <li v-if="salaryMom">{{ salaryMom }}</li>
                 <li v-if="salarySecondParent">{{ salarySecondParent }}</li>
             </ul>

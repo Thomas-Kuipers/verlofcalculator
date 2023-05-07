@@ -13,15 +13,15 @@ const { t } = translate()
 
 <template>
     <tr>
-        <td colspan="3"><h2 :class="$style.title">Financial impact</h2></td>
+        <td colspan="3"><h2 :class="$style.title">{{ t('financialTitle') }}</h2></td>
     </tr>
     <tr>
         <th />
-        <th>Mom</th>
-        <th>Partner</th>
+        <th>{{ t('financialThMom') }}</th>
+        <th>{{ t('financialThPartner') }}</th>
     </tr>
     <tr>
-        <td>Gross yearly salary</td>
+        <td>{{ t('financialGrossYearlySalary') }}</td>
         <td>
             <input
                 :class="$style.salaryInput"
@@ -38,67 +38,88 @@ const { t } = translate()
         </td>
     </tr>
     <tr>
-        <td>Days off fully paid</td>
+        <td>{{ t('financialDaysOffFullyPaid') }}</td>
         <td>{{ leaveStore.daysOffFullyPaid(true) }}</td>
         <td>{{ leaveStore.daysOffFullyPaid(false) }}</td>
     </tr>
     <RowWithInfo :title="t('daysOffAtMaxUwv')">
         <DaysWithMissedIncome
-            :normal-income="leaveStore.dailySalary(true)"
-            :payout="leaveStore.payoutAtMaxUwv(true)"
             :missed-income="leaveStore.missedIncomeAtMaxUwv(true)"
             :days="leaveStore.daysOffAtMaxUwv(true)"
         />
         <DaysWithMissedIncome
-            :normal-income="leaveStore.dailySalary(false)"
             :missed-income="leaveStore.missedIncomeAtMaxUwv(false)"
-            :payout="leaveStore.payoutAtMaxUwv(false)"
             :days="leaveStore.daysOffAtMaxUwv(false)"
         />
         <template #info>
             <ul>
-                <li v-html="t('dailySalaryAtMaxUwvDescriptionHtml', { url: 'https://www.uwv.nl/particulieren/ziek/ziek-zonder-werkgever/na-ziekmelding/detail/mijn-ziektewet-uitkering/hoe-hoog-is-mijn-ziektewet-uitkering/berekening-van-uw-dagloon#:~:text=Voor%20uw%20uitkering%20geldt%20een,de%20berekening%20van%20uw%20dagloon.', maxUwv: uwvMaximumDagloon }) "/>
-                <li v-if="leaveStore.dailySalary(true) !== null">Mom will get paid out <Money :value="leaveStore.payoutAtMaxUwv(true)" /> for each of these days. Her normal daily salary is <Money :value="leaveStore.dailySalary(true)" />, so she misses out on <Money :value="leaveStore.missedIncomeAtMaxUwv(true)" /> per day.</li>
-                <li v-if="leaveStore.dailySalary(false) !== null">The partner will get paid out <Money :value="leaveStore.payoutAtMaxUwv(false)" /> for each of these days. Their normal daily salary is <Money :value="leaveStore.dailySalary(false)" />, so they miss out on <Money :value="leaveStore.missedIncomeAtMaxUwv(false)" /> per day.</li>
+                <li v-html="t('dailySalaryAtMaxUwvDescriptionHtml', { url: 'https://www.uwv.nl/particulieren/ziek/ziek-zonder-werkgever/na-ziekmelding/detail/mijn-ziektewet-uitkering/hoe-hoog-is-mijn-ziektewet-uitkering/berekening-van-uw-dagloon#:~:text=Voor%20uw%20uitkering%20geldt%20een,de%20berekening%20van%20uw%20dagloon.', maxUwv: formatMoney(uwvMaximumDagloon) }) "/>
+                <li v-if="leaveStore.dailySalary(true) !== null">
+                    {{ t('payoutNormalAndMissingMom', {
+                        payoutPerDay: formatMoney(leaveStore.payoutAtMaxUwv(true)),
+                        normalIncomePerDay: formatMoney(leaveStore.dailySalary(true)),
+                        missedIncomePerDay: formatMoney(leaveStore.missedIncomeAtMaxUwv(true)),
+                    })}}
+                </li>
+                <li v-if="leaveStore.dailySalary(false) !== null">
+                    {{ t('payoutNormalAndMissingPartner', {
+                        payoutPerDay: formatMoney(leaveStore.payoutAtMaxUwv(false)),
+                        normalIncomePerDay: formatMoney(leaveStore.dailySalary(false)),
+                        missedIncomePerDay: formatMoney(leaveStore.missedIncomeAtMaxUwv(false)),
+                    }) }}
+                </li>
             </ul>
         </template>
     </RowWithInfo>
-    <tr>
-        <td>
-            <Tooltip :tooltip="`You get paid 70% of your own daily wage, or 70% of the maximum of UWV (${formatMoney(0.7 * uwvMaximumDagloon)}), whichever is less`">
-                Days off @ 70%
-            </Tooltip>
-        </td>
+    <RowWithInfo :title="t('daysOffAtSeventyPercent')">
         <DaysWithMissedIncome
-            :normal-income="leaveStore.dailySalary(true)"
             :missed-income="leaveStore.missedIncomeAt70Percent(true)"
-            :payout="leaveStore.payoutAt70Percent(true)"
             :days="leaveStore.daysOffAt70Percent(true)"
         />
         <DaysWithMissedIncome
-            :normal-income="leaveStore.dailySalary(false)"
             :missed-income="leaveStore.missedIncomeAt70Percent(false)"
-            :payout="leaveStore.payoutAt70Percent(false)"
-            :days="leaveStore.daysOffAtMaxUwv(false)"
+            :days="leaveStore.daysOffAt70Percent(false)"
         />
-    </tr>
-    <tr>
-        <td>Days off unpaid</td>
+        <template #info>
+            <ul>
+                <li v-html="t('dailySalaryAtSeventyPercentDescriptionHtml', { maxUwvSeventy: formatMoney(uwvMaximumDagloon * 0.7) }) "/>
+                <li v-if="leaveStore.dailySalary(true) !== null">
+                    {{ t('payoutNormalAndMissingMom', {
+                    payoutPerDay: formatMoney(leaveStore.payoutAt70Percent(true)),
+                    normalIncomePerDay: formatMoney(leaveStore.dailySalary(true)),
+                    missedIncomePerDay: formatMoney(leaveStore.missedIncomeAt70Percent(true)),
+                })}}
+                </li>
+                <li v-if="leaveStore.dailySalary(false) !== null">
+                    {{ t('payoutNormalAndMissingPartner', {
+                    payoutPerDay: formatMoney(leaveStore.payoutAt70Percent(false)),
+                    normalIncomePerDay: formatMoney(leaveStore.dailySalary(false)),
+                    missedIncomePerDay: formatMoney(leaveStore.missedIncomeAt70Percent(false)),
+                }) }}
+                </li>
+            </ul>
+        </template>
+    </RowWithInfo>
+    <RowWithInfo :title="t('daysOffUnpaid')">
         <DaysWithMissedIncome
-            :normal-income="null"
             :missed-income="leaveStore.missedIncomeUnpaid(true)"
             :days="leaveStore.daysOffUnpaid(true)"
-            :payout="null"
         />
         <DaysWithMissedIncome
-            :normal-income="null"
             :missed-income="leaveStore.missedIncomeUnpaid(false)"
             :days="leaveStore.daysOffUnpaid(false)"
-            :payout="null"
         />
-    </tr>
+        <template #info>
+            <li v-if="leaveStore.dailySalary(true) !== null">
+                {{ t('daysOffUnpaidMomCost', { dailySalary: formatMoney(leaveStore.dailySalary(true)) } )}}
+            </li>
+            <li v-if="leaveStore.dailySalary(false) !== null">
+                {{ t('daysOffUnpaidPartnerCost', { dailySalary: formatMoney(leaveStore.dailySalary(false)) } )}}
+            </li>
+        </template>
+    </RowWithInfo>
     <tr>
-        <td>Total gross missed income</td>
+        <td>{{ t('totalGrossMissedIncome') }}</td>
         <td><Money hide-zero :value="leaveStore.totalMissedIncome(true)" /></td>
         <td><Money hide-zero :value="leaveStore.totalMissedIncome(false)" /></td>
     </tr>
