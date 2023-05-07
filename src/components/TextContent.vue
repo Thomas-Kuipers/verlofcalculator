@@ -41,7 +41,7 @@ defineProps<{
 
     ul,
     ol {
-        margin-bottom: 16px;
+        margin-bottom: 24px;
         margin-top: 8px;
         list-style: disc;
     }

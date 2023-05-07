@@ -14,7 +14,7 @@ function onMouseEnter() {
         visible.value = true
         const rect = target.value.getBoundingClientRect()
         position.value = {
-            x: Math.min(window.innerWidth - 150, rect.left + (rect.width / 2)),
+            x: rect.left + (rect.width / 2),
             y: rect.top + window.scrollY
         }
     }

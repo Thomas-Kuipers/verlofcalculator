@@ -24,7 +24,7 @@ const tooltip = computed(() => {
     <td>
         <div :class="$style.container">
             <span>{{ days || 0 }}</span>
-            <Tooltip :tooltip="tooltip">
+            <Tooltip tooltip="Missed income per day">
                 <Money hide-zero :value="missedIncome" />
             </Tooltip>
         </div>

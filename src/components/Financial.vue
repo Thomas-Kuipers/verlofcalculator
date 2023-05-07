@@ -5,6 +5,7 @@ import Money from '@/components/Money.vue'
 import DaysWithMissedIncome from '@/components/DaysWithMissedIncome.vue'
 import Tooltip from '@/components/Tooltip.vue'
 import { formatMoney } from '@/helpers/formatMoney'
+import RowWithInfo from '@/components/RowWithInfo.vue'
 
 const leaveStore = useLeaveStore()
 </script>
@@ -38,12 +39,7 @@ const leaveStore = useLeaveStore()
         <td>{{ leaveStore.daysOffFullyPaid(true) }}</td>
         <td>{{ leaveStore.daysOffFullyPaid(false) }}</td>
     </tr>
-    <tr>
-        <td>
-            <Tooltip :tooltip="`You get paid 100% of your own daily wage, or the maximum of UWV (${formatMoney(uwvMaximumDagloon)}), whichever is less`">
-                Days off @ <a target="_blank" href="https://www.uwv.nl/particulieren/ziek/ziek-zonder-werkgever/na-ziekmelding/detail/mijn-ziektewet-uitkering/hoe-hoog-is-mijn-ziektewet-uitkering/berekening-van-uw-dagloon#:~:text=Voor%20uw%20uitkering%20geldt%20een,de%20berekening%20van%20uw%20dagloon.">max UWV</a>
-            </Tooltip>
-        </td>
+    <RowWithInfo title="Days off @ max UWV">
         <DaysWithMissedIncome
             :normal-income="leaveStore.dailySalary(true)"
             :payout="leaveStore.payoutAtMaxUwv(true)"
@@ -56,7 +52,14 @@ const leaveStore = useLeaveStore()
             :payout="leaveStore.payoutAtMaxUwv(false)"
             :days="leaveStore.daysOffAtMaxUwv(false)"
         />
-    </tr>
+        <template #info>
+            <ul>
+                <li>You get paid 100% of your own daily wage, or the <a target="_blank" href="https://www.uwv.nl/particulieren/ziek/ziek-zonder-werkgever/na-ziekmelding/detail/mijn-ziektewet-uitkering/hoe-hoog-is-mijn-ziektewet-uitkering/berekening-van-uw-dagloon#:~:text=Voor%20uw%20uitkering%20geldt%20een,de%20berekening%20van%20uw%20dagloon.">maximum of the UWV</a> (<Money :value="uwvMaximumDagloon" />), whichever is less.</li>
+                <li v-if="leaveStore.dailySalary(true) !== null">Mom will get paid out <Money :value="leaveStore.payoutAtMaxUwv(true)" /> for each of these days. Her normal daily salary is <Money :value="leaveStore.dailySalary(true)" />, so she misses out on <Money :value="leaveStore.missedIncomeAtMaxUwv(true)" /> per day.</li>
+                <li v-if="leaveStore.dailySalary(false) !== null">The partner will get paid out <Money :value="leaveStore.payoutAtMaxUwv(false)" /> for each of these days. Their normal daily salary is <Money :value="leaveStore.dailySalary(false)" />, so they miss out on <Money :value="leaveStore.missedIncomeAtMaxUwv(false)" /> per day.</li>
+            </ul>
+        </template>
+    </RowWithInfo>
     <tr>
         <td>
             <Tooltip :tooltip="`You get paid 70% of your own daily wage, or 70% of the maximum of UWV (${formatMoney(0.7 * uwvMaximumDagloon)}), whichever is less`">
