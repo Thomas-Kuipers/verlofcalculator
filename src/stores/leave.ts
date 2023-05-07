@@ -172,6 +172,13 @@ const defaultPresets: Preset[] = [
 	}
 ]
 
+interface DaysUsedForAllRegulations {
+	[regulationId: string]: {
+		mom: number
+		secondParent: number
+	}
+}
+
 export const useLeaveStore = defineStore('leave', {
 	state: (): Leave => ({
 		personal: {
@@ -201,8 +208,9 @@ export const useLeaveStore = defineStore('leave', {
 				[]
 			)
 		},
-		daysUsedByRegulation(state): (regulationId: string, mom: boolean) => number {
-			return (regulationId: string, mom: boolean): number => {
+		daysUsedForAllRegulations(state): DaysUsedForAllRegulations {
+			const result: DaysUsedForAllRegulations = {}
+			const calculate = (regulationId: string, mom: boolean): number => {
 				const totalDaysUsed: number = state.weeks.reduce((total: number, week: Week) =>
 						total + (mom ? week.daysOffMom : week.daysOffSecondParent)
 					, 0)
@@ -226,6 +234,30 @@ export const useLeaveStore = defineStore('leave', {
 				)
 
 				return Math.min(currentRegulation!!.daysOff, totalDaysUsed - daysUsedByOtherRegulations)
+			}
+
+			this.regulations.forEach(regulation => {
+				result[regulation.id] = {
+					mom: calculate(regulation.id, true),
+					secondParent: calculate(regulation.id, false)
+				}
+			})
+
+			return result
+		},
+		daysUsedByRegulation(state): (regulationId: string, mom: boolean) => number {
+			return (regulationId: string, mom: boolean): number => {
+				const result = this.daysUsedForAllRegulations[regulationId]
+
+				if (!result) {
+					return 0
+				}
+
+				if (mom) {
+					return result.mom
+				} else {
+					return result.secondParent
+				}
 			}
 		},
 		daysOffByMultipleRegulations(state): (regulations: Regulation[], mom: boolean) => number {
