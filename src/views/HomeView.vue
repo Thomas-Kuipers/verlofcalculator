@@ -31,7 +31,9 @@ const { t } = translate()
                     <Financial />
                 </table>
                 <Analysis />
-                <TextContent v-html="t('feedbackHtml')" />
+                <TextContent>
+                    <div v-html="t('feedbackHtml')" />
+                </TextContent>
             </aside>
         </main>
 	</div>
@@ -48,7 +50,6 @@ const { t } = translate()
 .main {
 	display: flex;
 }
-
 
 .table {
     margin-bottom: 24px;
