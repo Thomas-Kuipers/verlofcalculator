@@ -31,12 +31,7 @@ const { t } = translate()
                     <Financial />
                 </table>
                 <Analysis />
-                <TextContent>
-                    <h2>Feedback</h2>
-                    <p>Notice any mistakes? Any other ideas how to improve this further?</p>
-                    <p>Email me at <a href="mailto:thomas@webvalid.nl">thomas@webvalid.nl</a></p>
-                    <p>If you're a nerd, you can submit a pull request at <a href="https://github.com/Thomas-Kuipers/verlofcalculator">github.com/Thomas-Kuipers/verlofcalculator</a></p>
-                </TextContent>
+                <TextContent v-html="t('feedbackHtml')" />
             </aside>
         </main>
 	</div>

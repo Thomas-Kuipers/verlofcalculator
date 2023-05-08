@@ -5,6 +5,6 @@ export function translate() {
     const { t } = useI18n()
 
     return {
-        t: (key: keyof MessageSchema, params: { [key: string]: string } = {}) => t(key, params)
+        t: (key: keyof MessageSchema, params: { [key: string]: string | number } = {}) => t(key, params)
     }
 }

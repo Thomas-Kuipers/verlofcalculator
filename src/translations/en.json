@@ -57,9 +57,11 @@
   "analysisMomMoreThanPartner": "Mom is taking {days} more days off than the partner.",
   "analysisPartnerMoreThanMom": "The partner is taking {days} more days off than mom.",
   "analysisEqualDays": "Both parents are taking the same amount of days off.",
-  "analysisWeeksOffMom": "Mom is taking {weeks} entire weeks off",
-  "analysisWeeksOffPartner": "The partner is taking {weeks} entire weeks off",
+  "analysisWeeksOffMom": "Mom is taking {weeks} entire weeks off.",
+  "analysisWeeksOffPartner": "The partner is taking {weeks} entire weeks off.",
   "analysisWeeksAndDaysOffMom": "Mom is taking {weeks} entire weeks off, plus on average {days} days per week spread out over {parttimeWeeks} weeks.",
   "analysisWeeksAndDaysOffPartner": "The partner is taking {weeks} entire weeks off, plus on average {days} days per week spread out over {parttimeWeeks} weeks.",
-  "analysisChildcare": "This year will require {days} days of external childcare."
+  "analysisChildcare": "This year will require {days} days of external childcare.",
+  "analysisTitle": "Analysis",
+  "feedbackHtml": "<h2>Feedback</h2><p>Notice any mistakes? Any other ideas how to improve this further?</p><p>Email me at <a href=\"mailto:thomas@webvalid.nl\">thomas@webvalid.nl</a></p><p>If you're a nerd, you can submit a pull request at <a href=\"https://github.com/Thomas-Kuipers/verlofcalculator\">github.com/Thomas-Kuipers/verlofcalculator</a></p>"
 }

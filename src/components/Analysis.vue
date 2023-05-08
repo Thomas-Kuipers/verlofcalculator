@@ -2,29 +2,37 @@
 import { useLeaveStore } from '@/stores/leave'
 import { computed } from 'vue'
 import TextContent from '@/components/TextContent.vue'
+import { translate } from '@/helpers/translate'
 
 const leaveStore = useLeaveStore()
+const { t } = translate()
+
 const dayCountSentence = computed<string>(() => {
 	const totalDaysOffMom = leaveStore.totalDaysUsed(true)
 	const totalDaysOffSecondParent = leaveStore.totalDaysUsed(false)
 
 	if (totalDaysOffMom > totalDaysOffSecondParent) {
-		return 'Mom is taking ' + (totalDaysOffMom - totalDaysOffSecondParent) + ' more days off than the partner.'
+		return t('analysisMomMoreThanPartner', {
+            days: totalDaysOffMom - totalDaysOffSecondParent
+        })
 	} else if (totalDaysOffMom < totalDaysOffSecondParent) {
-		return 'The partner is taking ' + (totalDaysOffSecondParent - totalDaysOffMom) + ' more days off than mom.'
+		return t('analysisPartnerMoreThanMom', {
+            days: totalDaysOffSecondParent - totalDaysOffMom
+        })
 	} else {
-		return 'Both parents are taking the same amount of days off.'
+        return t('analysisEqualDays')
 	}
 })
 
-function weeksSentence(weeks: number[]): string {
+function weeksSentence(mom: boolean): string {
+    const weeks = leaveStore.daysPerWeek(mom)
 	const fullWeeks = weeks.filter(days => days === 5).length
-
-	const entireWeeks = ' is taking ' + fullWeeks + ' entire weeks off'
 	const parttimeWeeks = weeks.filter(days => days < 5 && days > 0).length
 
 	if (parttimeWeeks === 0) {
-		return entireWeeks + '.'
+        return t(mom ? 'analysisWeeksOffMom' : 'analysisWeeksOffPartner', {
+            weeks: fullWeeks
+        })
 	}
 
 	const averagePerParttimeWeek = Math.round(
@@ -33,15 +41,19 @@ function weeksSentence(weeks: number[]): string {
 			.reduce((total: number, days: number) => total + days, 0) / parttimeWeeks * 10
 	) / 10
 
-	return entireWeeks + ' plus on average ' + averagePerParttimeWeek + ' days per week spread out over ' + parttimeWeeks + ' weeks.'
+    return t(mom ? 'analysisWeeksAndDaysOffMom' : 'analysisWeeksAndDaysOffPartner', {
+        weeks: fullWeeks,
+        days: averagePerParttimeWeek,
+        parttimeWeeks: parttimeWeeks
+    })
 }
 
 const weeksMomSentence = computed<string>(() => {
-	return 'Mom' + weeksSentence(leaveStore.daysPerWeek(true))
+	return weeksSentence(true)
 })
 
 const weeksSecondParentSentence = computed<string>(() => {
-	return 'The partner' + weeksSentence(leaveStore.daysPerWeek(false))
+	return weeksSentence(false)
 })
 
 const childcareSentence = computed<string>(() => {
@@ -49,7 +61,9 @@ const childcareSentence = computed<string>(() => {
         total + Math.max(0, 5 - week.daysOffMom - week.daysOffSecondParent)
     , 0)
 
-    return 'This year will require ' + childcareDays + ' days of external childcare.'
+    return t('analysisChildcare', {
+        days: childcareDays
+    })
 })
 
 </script>
@@ -57,7 +71,7 @@ const childcareSentence = computed<string>(() => {
 <template>
 	<div :class="$style.container">
         <TextContent>
-            <h2>Analysis</h2>
+            <h2>{{ t('analysisTitle') }}</h2>
             <ul>
                 <li>{{ dayCountSentence }}</li>
                 <li>{{ weeksMomSentence }}</li>
