@@ -42,7 +42,7 @@ const { t } = translate()
     padding: 16px 16px 0;
     display: flex;
     justify-content: space-between;
-    align-items: start;
+    align-items: flex-start;
 }
 
 .main {
