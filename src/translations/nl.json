@@ -53,5 +53,13 @@
   "daysOffUnpaid": "Onbetaalde vrije dagen",
   "daysOffUnpaidMomCost": "Dit kost de moeder {dailySalary} in gemist inkomen per dag.",
   "daysOffUnpaidPartnerCost": "Dit kost de partner {dailySalary} in gemist inkomen per dag.",
-  "totalGrossMissedIncome": "Totaal bruto gemist inkomen"
+  "totalGrossMissedIncome": "Totaal bruto gemist inkomen",
+  "analysisMomMoreThanPartner": "Mom is taking {days} more days off than the partner.",
+  "analysisPartnerMoreThanMom": "The partner is taking {days} more days off than mom.",
+  "analysisEqualDays": "Both parents are taking the same amount of days off.",
+  "analysisWeeksOffMom": "Mom is taking {weeks} entire weeks off",
+  "analysisWeeksOffPartner": "The partner is taking {weeks} entire weeks off",
+  "analysisWeeksAndDaysOffMom": "Mom is taking {weeks} entire weeks off, plus on average {days} days per week spread out over {parttimeWeeks} weeks.",
+  "analysisWeeksAndDaysOffPartner": "The partner is taking {weeks} entire weeks off, plus on average {days} days per week spread out over {parttimeWeeks} weeks.",
+  "analysisChildcare": "This year will require {days} days of external childcare."
 }
