@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import Calendar from '@/components/Calendar.vue'
 import DaysUsage from '@/components/DaysUsage.vue'
-import Presets from '@/components/Presets.vue'
 import Analysis from '@/components/Analysis.vue'
 import TextContent from '@/components/TextContent.vue'
 import Financial from '@/components/Financial.vue'
@@ -27,7 +26,6 @@ const { t } = translate()
                 <Calendar />
             </div>
             <aside :class="$style.aside">
-                <Presets />
                 <DaysChart />
                 <table :class="$style.table">
                     <DaysUsage />
@@ -46,6 +44,8 @@ const { t } = translate()
 </template>
 
 <style lang="scss" module>
+@use '@/assets/scss/responsive.scss';
+
 .header {
     padding: 24px 16px 16px;
     display: flex;
@@ -94,5 +94,11 @@ const { t } = translate()
 
 .spacer {
     height: 24px;
+}
+
+.left {
+    @include responsive.desktop {
+        max-width: 50%;
+    }
 }
 </style>

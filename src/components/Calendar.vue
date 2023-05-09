@@ -1,11 +1,18 @@
 <script lang="ts" setup>
-import { useLeaveStore } from '@/stores/leave'
+import { Preset, useLeaveStore } from '@/stores/leave'
 import Week from '@/components/Week.vue'
 import { translate } from '@/helpers/translate'
 import TextContent from '@/components/TextContent.vue'
 
 const leaveStore = useLeaveStore()
 const { t } = translate()
+
+function activate(preset: Preset) {
+    leaveStore.weeks.forEach((week, i) => {
+        leaveStore.setDays(i + 1, preset.mom[i] || 0, true)
+        leaveStore.setDays(i + 1, preset.secondParent[i] || 0, false)
+    })
+}
 </script>
 
 <template>
@@ -13,6 +20,16 @@ const { t } = translate()
         <TextContent>
             <h2>{{ t('calendarTitle') }}</h2>
         </TextContent>
+        <div :class="$style.presets">
+            <p>{{ t('examplesTitle') }}:</p>
+            <button
+                :class="$style.preset"
+                @click="() => activate(preset)"
+                v-for="preset in leaveStore.presets">
+                {{ t(preset.title) }}
+            </button>
+        </div>
+
         <table :class="$style.table">
             <thead>
             <tr>
@@ -35,8 +52,22 @@ const { t } = translate()
 </template>
 
 <style lang="scss" module>
+@use '@/assets/scss/variables.scss';
+
 .container {
     margin: 0 16px 16px;
+}
+
+.presets {
+    margin-bottom: 24px;
+}
+
+.preset {
+    display: inline-block;
+    border: 1px solid variables.$lightSeparator;
+    margin: 0 4px 4px 0;
+    padding: 2px 8px;
+    border-radius: 5px;
 }
 
 .table {
