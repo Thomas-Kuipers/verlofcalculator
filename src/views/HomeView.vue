@@ -7,6 +7,7 @@ import TextContent from '@/components/TextContent.vue'
 import Financial from '@/components/Financial.vue'
 import { translate } from '@/helpers/translate'
 import LanguageSelector from '@/components/LanguageSelector.vue'
+import DaysChart from '@/components/DaysChart.vue'
 
 const { t } = translate()
 </script>
@@ -23,6 +24,7 @@ const { t } = translate()
             <Calendar />
             <aside :class="$style.aside">
                 <Presets />
+                <DaysChart />
                 <table :class="$style.table">
                     <DaysUsage />
                     <tr>
