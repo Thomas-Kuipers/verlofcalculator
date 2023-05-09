@@ -23,11 +23,16 @@ const partnerFactor = computed(() => {
 
 const widthPartner = computed(() =>  Math.round(partnerFactor.value * maxWidth))
 const standardColor = '#cccccc'
+const goodColor = '#6fde5b'
 const color1 = 'f72020'
 const color2 = 'ffb5bf'
 
 const momColor = computed(() => {
-    if (daysOffMom.value <= daysOffPartner.value) {
+    if (daysOffMom.value === daysOffPartner.value) {
+        return goodColor
+    }
+
+    if (daysOffMom.value < daysOffPartner.value) {
         return standardColor
     }
 
@@ -39,7 +44,11 @@ const momColor = computed(() => {
 
 
 const partnerColor = computed(() => {
-    if (daysOffPartner.value <= daysOffMom.value) {
+    if (daysOffMom.value === daysOffPartner.value) {
+        return goodColor
+    }
+
+    if (daysOffPartner.value < daysOffMom.value) {
         return standardColor
     }
 
