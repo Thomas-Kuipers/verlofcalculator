@@ -8,6 +8,7 @@ import Financial from '@/components/Financial.vue'
 import { translate } from '@/helpers/translate'
 import LanguageSelector from '@/components/LanguageSelector.vue'
 import DaysChart from '@/components/DaysChart.vue'
+import Settings from '@/components/Settings.vue'
 
 const { t } = translate()
 </script>
@@ -21,7 +22,10 @@ const { t } = translate()
             <LanguageSelector />
         </header>
         <main :class="$style.main">
-            <Calendar />
+            <div :class="$style.left">
+                <Settings />
+                <Calendar />
+            </div>
             <aside :class="$style.aside">
                 <Presets />
                 <DaysChart />
@@ -43,7 +47,7 @@ const { t } = translate()
 
 <style lang="scss" module>
 .header {
-    padding: 16px 16px 0;
+    padding: 24px 16px 16px;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;

@@ -2,6 +2,7 @@
 import { useLeaveStore } from '@/stores/leave'
 import { computed } from 'vue'
 import TextContent from '@/components/TextContent.vue'
+import { translate } from '@/helpers/translate'
 
 const leaveStore = useLeaveStore()
 
@@ -42,7 +43,6 @@ const momColor = computed(() => {
     return getColor(color1, color2, ratio)
 })
 
-
 const partnerColor = computed(() => {
     if (daysOffMom.value === daysOffPartner.value) {
         return goodColor
@@ -70,21 +70,23 @@ function getColor(color1: string, color2: string, ratio: number) {
 
     return '#' + hex(r) + hex(g) + hex(b);
 }
+
+const { t } = translate()
 </script>
 
 <template>
     <div :class="$style.container">
         <TextContent>
-            <h2>Days off comparison</h2>
+            <h2>{{ t('chartTitle') }}</h2>
         </TextContent>
         <ul>
             <li :class="$style.item">
                 <div :class="$style.bar" :style="{ width: widthMom + 'px', background: momColor }" />
-                <div :class="$style.value">Mom: {{ daysOffMom }} days off</div>
+                <div :class="$style.value">{{ t('chartDaysMom', { days: daysOffMom }) }}</div>
             </li>
             <li :class="$style.item">
                 <div :class="$style.bar" :style="{ width: widthPartner + 'px', background: partnerColor }" />
-                <div :class="$style.value">Partner: {{ daysOffPartner }} days off</div>
+                <div :class="$style.value">{{ t('chartDaysPartner', { days: daysOffPartner }) }}</div>
             </li>
         </ul>
     </div>

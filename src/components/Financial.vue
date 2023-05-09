@@ -21,23 +21,6 @@ const { t } = translate()
         <th>{{ t('financialThPartner') }}</th>
     </tr>
     <tr>
-        <td>{{ t('financialGrossYearlySalary') }}</td>
-        <td>
-            <input
-                :class="$style.salaryInput"
-                type="number"
-                @keyup="event => leaveStore.setGrossYearlySalary(parseInt(event.currentTarget.value), true)"
-            />
-        </td>
-        <td>
-            <input
-                :class="$style.salaryInput"
-                type="number"
-                @keyup="event => leaveStore.setGrossYearlySalary(parseInt(event.currentTarget.value), false)"
-            />
-        </td>
-    </tr>
-    <tr>
         <td>{{ t('financialDaysOffFullyPaid') }}</td>
         <td>{{ leaveStore.daysOffFullyPaid(true) }}</td>
         <td>{{ leaveStore.daysOffFullyPaid(false) }}</td>

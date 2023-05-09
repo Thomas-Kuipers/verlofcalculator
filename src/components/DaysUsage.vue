@@ -14,7 +14,7 @@ const { t } = translate()
         </td>
     </tr>
     <tr>
-        <th>{{ t('regulationsThRegulation') }}</th>
+        <th />
         <th>{{ t('regulationsThMom') }}</th>
         <th>{{ t('regulationsThPartner') }}</th>
     </tr>

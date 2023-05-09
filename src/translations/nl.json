@@ -63,5 +63,12 @@
   "analysisWeeksAndDaysOffPartner": "De partner neemt {weeks} volledige weken vrij, plus gemiddeld {days} dagen verspreid over {parttimeWeeks} weken.",
   "analysisChildcare": "Dit jaar zijn er {days} dagen kinderopvang nodig.",
   "analysisTitle": "Analyse",
-  "feedbackHtml": "<h2>Feedback</h2><p>Foutje gevonden? Ideeën ter verbetering?</p><p>Email mij op <a href=\"mailto:thomas{'@'}webvalid.nl\">thomas{'@'}webvalid.nl</a></p><p>Voor de nerds: verstuur een pull request op <a href=\"https://github.com/Thomas-Kuipers/verlofcalculator\">github.com/Thomas-Kuipers/verlofcalculator</a></p>"
+  "feedbackHtml": "<h2>Feedback</h2><p>Foutje gevonden? Ideeën ter verbetering?</p><p>Email mij op <a href=\"mailto:thomas{'@'}webvalid.nl\">thomas{'@'}webvalid.nl</a></p><p>Voor de nerds: verstuur een pull request op <a href=\"https://github.com/Thomas-Kuipers/verlofcalculator\">github.com/Thomas-Kuipers/verlofcalculator</a></p>",
+  "settingsTitle": "Vul hier jouw gegevens in",
+  "settingsGrossYearlySalaryMom": "Bruto jaarsalaris moeder",
+  "settingsGrossYearlySalaryPartner": "Bruto jaarsalaris partner",
+  "chartTitle": "Vrije dagen vergelijking",
+  "chartDaysMom": "Moeder: {days} vrije dagen",
+  "chartDaysPartner": "Partner: {days} vrije dagen",
+  "calendarTitle": "Kalender"
 }
