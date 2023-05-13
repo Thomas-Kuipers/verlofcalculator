@@ -216,52 +216,60 @@ export const useLeaveStore = defineStore('leave', {
 				0
 			)
 		},
+		regulationsFullyPaid(state): Regulation[] {
+			return state.regulations.filter(regulation =>
+				regulation.percentageOfSalary === 100
+				&& regulation.dailySalaryMax === null
+			)
+		},
 		daysOffFullyPaid(state): (mom: boolean) => number {
 			return (mom: boolean) => {
-				const regulations = state.regulations.filter(regulation =>
-						regulation.percentageOfSalary === 100
-						&& regulation.dailySalaryMax === null
-						&& (
-							(mom && regulation.mom) || (!mom && regulation.secondParent)
-						)
+				const regulations = this.regulationsFullyPaid.filter(regulation =>
+					(mom && regulation.mom) || (!mom && regulation.secondParent)
 				)
 
 				return this.daysOffByMultipleRegulations(regulations, mom)
 			}
+		},
+		regulationsMaxUwv(state): Regulation[] {
+			return state.regulations.filter(regulation =>
+				regulation.percentageOfSalary === 100
+				&& regulation.dailySalaryMax === uwvMaximumDagloon
+			)
 		},
 		daysOffAtMaxUwv(state): (mom: boolean) => number {
 			return (mom: boolean) => {
-				const regulations = state.regulations.filter(regulation =>
-						regulation.percentageOfSalary === 100
-						&& regulation.dailySalaryMax === uwvMaximumDagloon
-						&& (
-							(mom && regulation.mom) || (!mom && regulation.secondParent)
-						)
+				const regulations = this.regulationsFullyPaid.filter(regulation =>
+					(mom && regulation.mom) || (!mom && regulation.secondParent)
 				)
 
 				return this.daysOffByMultipleRegulations(regulations, mom)
 			}
+		},
+		regulations70Percent(state): Regulation[] {
+			return state.regulations.filter(regulation =>
+				regulation.percentageOfSalary === 70
+				&& regulation.dailySalaryMax === 0.7 * uwvMaximumDagloon
+			)
 		},
 		daysOffAt70Percent(state): (mom: boolean) => number {
 			return (mom: boolean) => {
-				const regulations = state.regulations.filter(regulation =>
-						regulation.percentageOfSalary === 70
-						&& regulation.dailySalaryMax === 0.7 * uwvMaximumDagloon
-						&& (
-							(mom && regulation.mom) || (!mom && regulation.secondParent)
-						)
+				const regulations = this.regulations70Percent.filter(regulation =>
+					(mom && regulation.mom) || (!mom && regulation.secondParent)
 				)
 
 				return this.daysOffByMultipleRegulations(regulations, mom)
 			}
 		},
+		regulationsUnpaid(state): Regulation[] {
+			return state.regulations.filter(regulation =>
+				regulation.percentageOfSalary === 0
+			)
+		},
 		daysOffUnpaid(state): (mom: boolean) => number {
 			return (mom: boolean) => {
-				const regulations = state.regulations.filter(regulation =>
-						regulation.percentageOfSalary === 0
-						&& (
-							(mom && regulation.mom) || (!mom && regulation.secondParent)
-						)
+				const regulations = this.regulationsUnpaid.filter(regulation =>
+					(mom && regulation.mom) || (!mom && regulation.secondParent)
 				)
 
 				return this.daysOffByMultipleRegulations(regulations, mom)

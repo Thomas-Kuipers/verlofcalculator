@@ -70,5 +70,6 @@
   "chartTitle": "Vrije dagen vergelijking",
   "chartDaysMom": "Moeder: {days} vrije dagen",
   "chartDaysPartner": "Partner: {days} vrije dagen",
-  "calendarTitle": "Kalender"
+  "calendarTitle": "Kalender",
+  "appliesToRegulations": "Van toepassing op de regelingen: {regulations}"
 }

@@ -20,11 +20,17 @@ const { t } = translate()
         <th>{{ t('financialThMom') }}</th>
         <th>{{ t('financialThPartner') }}</th>
     </tr>
-    <tr>
-        <td>{{ t('financialDaysOffFullyPaid') }}</td>
+    <RowWithInfo :title="t('financialDaysOffFullyPaid')">
         <td>{{ leaveStore.daysOffFullyPaid(true) }}</td>
         <td>{{ leaveStore.daysOffFullyPaid(false) }}</td>
-    </tr>
+        <template #info>
+            <ul>
+                <li>{{ t('appliesToRegulations', {
+                    regulations: leaveStore.regulationsFullyPaid.map(regulation => t(regulation.title)).join(', ')
+                })}}</li>
+            </ul>
+        </template>
+    </RowWithInfo>
     <RowWithInfo :title="t('daysOffAtMaxUwv')">
         <DaysWithMissedIncome
             :missed-income="leaveStore.missedIncomeAtMaxUwv(true)"
@@ -36,6 +42,9 @@ const { t } = translate()
         />
         <template #info>
             <ul>
+                <li>{{ t('appliesToRegulations', {
+                    regulations: leaveStore.regulationsMaxUwv.map(regulation => t(regulation.title)).join(', ')
+                })}}</li>
                 <li v-html="t('dailySalaryAtMaxUwvDescriptionHtml', { url: 'https://www.uwv.nl/particulieren/ziek/ziek-zonder-werkgever/na-ziekmelding/detail/mijn-ziektewet-uitkering/hoe-hoog-is-mijn-ziektewet-uitkering/berekening-van-uw-dagloon#:~:text=Voor%20uw%20uitkering%20geldt%20een,de%20berekening%20van%20uw%20dagloon.', maxUwv: formatMoney(uwvMaximumDagloon) }) "/>
                 <li v-if="leaveStore.dailySalary(true) !== null">
                     {{ t('payoutNormalAndMissingMom', {
@@ -65,6 +74,9 @@ const { t } = translate()
         />
         <template #info>
             <ul>
+                <li>{{ t('appliesToRegulations', {
+                    regulations: leaveStore.regulations70Percent.map(regulation => t(regulation.title)).join(', ')
+                })}}</li>
                 <li v-html="t('dailySalaryAtSeventyPercentDescriptionHtml', { maxUwvSeventy: formatMoney(uwvMaximumDagloon * 0.7) }) "/>
                 <li v-if="leaveStore.dailySalary(true) !== null">
                     {{ t('payoutNormalAndMissingMom', {
@@ -93,6 +105,9 @@ const { t } = translate()
             :days="leaveStore.daysOffUnpaid(false)"
         />
         <template #info>
+            <li>{{ t('appliesToRegulations', {
+                regulations: leaveStore.regulationsUnpaid.map(regulation => t(regulation.title)).join(', ')
+            })}}</li>
             <li v-if="leaveStore.dailySalary(true) !== null">
                 {{ t('daysOffUnpaidMomCost', { dailySalary: formatMoney(leaveStore.dailySalary(true)) } )}}
             </li>
