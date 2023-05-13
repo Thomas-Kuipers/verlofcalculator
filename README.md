@@ -1,4 +1,6 @@
-# parental-leave
+# Verlof Calculator
+
+Hosted on [verlofcalculator.nl](https://verlofcalculator.nl/)
 
 ## Project setup
 ```

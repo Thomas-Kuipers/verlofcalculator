@@ -48,7 +48,7 @@
   "financialDaysOffFullyPaid": "Vrije dagen volledig betaald",
   "daysOffAtMaxUwv": "Vrije dagen {'@'} max UWV",
   "dailySalaryAtMaxUwvDescriptionHtml": "Je krijgt 100% van je normale dagloon betaald, of het <a target=\"_blank\" href=\"{url}\">maximum van het UWV</a> ({maxUwv}), welke het laagste is.",
-  "daysOffAtSeventyPercent": "Vrije dagen 70%",
+  "daysOffAtSeventyPercent": "Vrije dagen {'@'} 70%",
   "dailySalaryAtSeventyPercentDescriptionHtml": "Je krijgt 70% van je normale dagloon betaald, of 70% van het maximum van het UWV ({maxUwvSeventy}), welke het laagste is.",
   "daysOffUnpaid": "Onbetaalde vrije dagen",
   "daysOffUnpaidMomCost": "Dit kost de moeder {dailySalary} in gemist inkomen per dag.",
