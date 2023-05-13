@@ -22,7 +22,7 @@ const { t } = translate()
                 />
             </li>
             <li :class="$style.item">
-                <label :class="$style.label">Hours per week mom</label>
+                <label :class="$style.label">{{ t('hoursPerWeekMom') }}</label>
                 <input
                     :value="leaveStore.personal.normalHoursPerWeekMom"
                     :class="$style.salaryInput"
@@ -47,7 +47,7 @@ const { t } = translate()
                 />
             </li>
             <li :class="$style.item">
-                <label :class="$style.label">Hours per week partner</label>
+                <label :class="$style.label">{{ t('hoursPerWeekSecondParent') }}</label>
                 <input
                     :value="leaveStore.personal.normalHoursPerWeekSecondParent"
                     :class="$style.salaryInput"

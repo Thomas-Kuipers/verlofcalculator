@@ -70,5 +70,7 @@
   "chartDaysMom": "Mom: {days} days off",
   "chartDaysPartner": "Partner: {days} days off",
   "calendarTitle": "Calendar",
-  "appliesToRegulations": "Applies to regulations: {regulations}"
+  "appliesToRegulations": "Applies to regulations: {regulations}",
+  "hoursPerWeekMom": "Hours per week mom",
+  "hoursPerWeekSecondParent": "Hours per week partner"
 }

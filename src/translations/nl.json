@@ -71,5 +71,7 @@
   "chartDaysMom": "Moeder: {days} vrije dagen",
   "chartDaysPartner": "Partner: {days} vrije dagen",
   "calendarTitle": "Kalender",
-  "appliesToRegulations": "Van toepassing op de regelingen: {regulations}"
+  "appliesToRegulations": "Van toepassing op de regelingen: {regulations}",
+  "hoursPerWeekMom": "Normale werkweek moeder",
+  "hoursPerWeekSecondParent": "Normale werkweek partner"
 }
