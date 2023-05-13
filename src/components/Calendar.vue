@@ -1,8 +1,9 @@
 <script lang="ts" setup>
-import { Preset, useLeaveStore } from '@/stores/leave'
+import { getWeeksForPreset, Preset, useLeaveStore } from '@/stores/leave'
 import Week from '@/components/Week.vue'
 import { translate } from '@/helpers/translate'
 import TextContent from '@/components/TextContent.vue'
+import { watchEffect } from 'vue'
 
 const leaveStore = useLeaveStore()
 const { t } = translate()
@@ -13,6 +14,10 @@ function activate(preset: Preset) {
         leaveStore.setDays(i + 1, preset.secondParent[i] || 0, false)
     })
 }
+
+watchEffect(() => {
+    leaveStore.setWeeks(getWeeksForPreset(leaveStore.presets[0]))
+})
 </script>
 
 <template>

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useLeaveStore } from '@/stores/leave'
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import Tooltip from '@/components/Tooltip.vue'
 import { translate } from '@/helpers/translate'
 
@@ -9,10 +9,11 @@ const props = defineProps<{
 	days: number
 	minimumDays: number | null
 	mom: boolean
+    max: number
 }>()
 
 const leaveStore = useLeaveStore()
-const options = Array.from(Array(6).keys())
+const options = computed(() => Array.from(Array(props.max + 1).keys()))
 const isMouseDown = ref<boolean>(false)
 
 function onMouseDown() {

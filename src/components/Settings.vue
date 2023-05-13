@@ -14,13 +14,6 @@ const { t } = translate()
         </TextContent>
         <ul :class="$style.list">
             <li :class="$style.item">
-                <label :class="$style.label">{{ t('setDueDate') }}</label>
-                <input
-                    type="date"
-                    @change="event => leaveStore.setDueDate(new Date(event.currentTarget.value))"
-                />
-            </li>
-            <li :class="$style.item">
                 <label :class="$style.label">{{ t('settingsGrossYearlySalaryMom') }}</label>
                 <input
                     :class="$style.salaryInput"
@@ -29,11 +22,38 @@ const { t } = translate()
                 />
             </li>
             <li :class="$style.item">
+                <label :class="$style.label">Hours per week mom</label>
+                <input
+                    :value="leaveStore.personal.normalHoursPerWeekMom"
+                    :class="$style.salaryInput"
+                    type="number"
+                    @change="event => leaveStore.setNormalHoursPerWeek(parseInt(event.currentTarget.value), true)"
+                    @keyup="event => leaveStore.setNormalHoursPerWeek(parseInt(event.currentTarget.value), true)"
+                />
+            </li>
+            <li :class="$style.item">
+                <label :class="$style.label">{{ t('setDueDate') }}</label>
+                <input
+                    type="date"
+                    @change="event => leaveStore.setDueDate(new Date(event.currentTarget.value))"
+                />
+            </li>
+            <li :class="$style.item">
                 <label :class="$style.label">{{ t('settingsGrossYearlySalaryPartner') }}</label>
                 <input
                     :class="$style.salaryInput"
                     type="number"
                     @keyup="event => leaveStore.setGrossYearlySalary(parseInt(event.currentTarget.value), false)"
+                />
+            </li>
+            <li :class="$style.item">
+                <label :class="$style.label">Hours per week partner</label>
+                <input
+                    :value="leaveStore.personal.normalHoursPerWeekSecondParent"
+                    :class="$style.salaryInput"
+                    type="number"
+                    @change="event => leaveStore.setNormalHoursPerWeek(parseInt(event.currentTarget.value), false)"
+                    @keyup="event => leaveStore.setNormalHoursPerWeek(parseInt(event.currentTarget.value), false)"
                 />
             </li>
         </ul>
@@ -48,8 +68,8 @@ const { t } = translate()
 }
 
 .list {
-    display: flex;
-    flex-wrap: wrap;
+    display: inline-grid;
+    grid-template-columns: auto auto auto;
 }
 
 .item {

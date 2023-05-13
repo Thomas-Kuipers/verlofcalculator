@@ -25,9 +25,11 @@ const dayCountSentence = computed<string>(() => {
 })
 
 function weeksSentence(mom: boolean): string {
+    const normalDaysPerWeek =
+        (mom ? leaveStore.personal.normalHoursPerWeekMom : leaveStore.personal.normalHoursPerWeekSecondParent) / 8
     const weeks = leaveStore.daysPerWeek(mom)
-	const fullWeeks = weeks.filter(days => days === 5).length
-	const parttimeWeeks = weeks.filter(days => days < 5 && days > 0).length
+	const fullWeeks = weeks.filter(days => days === normalDaysPerWeek).length
+	const parttimeWeeks = weeks.filter(days => days < normalDaysPerWeek && days > 0).length
 
 	if (parttimeWeeks === 0) {
         return t(mom ? 'analysisWeeksOffMom' : 'analysisWeeksOffPartner', {
@@ -37,7 +39,7 @@ function weeksSentence(mom: boolean): string {
 
 	const averagePerParttimeWeek = Math.round(
 		weeks
-			.filter(days => days < 5)
+			.filter(days => days < normalDaysPerWeek)
 			.reduce((total: number, days: number) => total + days, 0) / parttimeWeeks * 10
 	) / 10
 
@@ -57,12 +59,8 @@ const weeksSecondParentSentence = computed<string>(() => {
 })
 
 const childcareSentence = computed<string>(() => {
-    const childcareDays = leaveStore.weeks.reduce((total, week) =>
-        total + Math.max(0, 5 - week.daysOffMom - week.daysOffSecondParent)
-    , 0)
-
     return t('analysisChildcare', {
-        days: childcareDays
+        days: leaveStore.totalChildcareDays
     })
 })
 

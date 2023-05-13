@@ -82,11 +82,11 @@ const { t } = translate()
         <ul>
             <li :class="$style.item">
                 <div :class="$style.bar" :style="{ width: widthMom + 'px', background: momColor }" />
-                <div :class="$style.value">{{ t('chartDaysMom', { days: daysOffMom }) }}</div>
+                <div :class="$style.value">{{ t('chartDaysMom', { days: Math.round(daysOffMom * 10) / 10 }) }}</div>
             </li>
             <li :class="$style.item">
                 <div :class="$style.bar" :style="{ width: widthPartner + 'px', background: partnerColor }" />
-                <div :class="$style.value">{{ t('chartDaysPartner', { days: daysOffPartner }) }}</div>
+                <div :class="$style.value">{{ t('chartDaysPartner', { days: Math.round(daysOffPartner * 10) / 10 }) }}</div>
             </li>
         </ul>
     </div>

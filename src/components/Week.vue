@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { useLeaveStore, Week } from '@/stores/leave'
 import DaySelector from '@/components/DaySelector.vue'
-import { getMinimumDaysInWeek } from '@/stores/leave'
 import { computed } from 'vue'
+import Days from '@/components/Days.vue'
 
 const props = defineProps<{
 	n: number
@@ -21,9 +21,7 @@ const date = computed<string>(() => {
 	return cloned.getDate() + '/' + (cloned.getMonth() + 1) + '/' + cloned.getUTCFullYear()
 })
 
-const childcareDays = computed(() =>
-    Math.max(0, 5 - props.week.daysOffMom - props.week.daysOffSecondParent)
-)
+const childcareDays = computed(() => leaveStore.childCareDaysPerWeek(props.week))
 </script>
 
 <template>
@@ -36,20 +34,22 @@ const childcareDays = computed(() =>
 			<DaySelector
 				:week-number="n"
 				:days="week.daysOffMom"
-				:minimum-days="getMinimumDaysInWeek(true, n)"
+				:minimum-days="leaveStore.getMinimumDaysInWeek(true, n)"
 				:mom="true"
+                :max="Math.min(Math.ceil(leaveStore.personal.normalHoursPerWeekMom / 8), 7)"
 			/>
 		</td>
         <td>
 			<DaySelector
 				:week-number="n"
 				:days="week.daysOffSecondParent"
-				:minimum-days="getMinimumDaysInWeek(false, n)"
+				:minimum-days="leaveStore.getMinimumDaysInWeek(false, n)"
 				:mom="false"
+                :max="Math.min(7, Math.ceil(leaveStore.personal.normalHoursPerWeekSecondParent / 8))"
 			/>
 		</td>
         <td>
-            {{ childcareDays }}
+            <Days :value="childcareDays" />
         </td>
 	</tr>
 </template>

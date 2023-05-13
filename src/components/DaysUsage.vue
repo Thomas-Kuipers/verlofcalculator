@@ -15,8 +15,8 @@ const { t } = translate()
     </tr>
     <tr>
         <th />
-        <th>{{ t('regulationsThMom') }}</th>
-        <th>{{ t('regulationsThPartner') }}</th>
+        <th :class="$style.column2">{{ t('regulationsThMom') }}</th>
+        <th :class="$style.column2">{{ t('regulationsThPartner') }}</th>
     </tr>
     <RegulationRow
         v-for="regulation in leaveStore.regulations"
@@ -34,5 +34,10 @@ const { t } = translate()
 
 .title {
     @include typography.title2;
+}
+
+.column2,
+.column3 {
+    width: 150px;
 }
 </style>

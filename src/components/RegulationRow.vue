@@ -10,6 +10,8 @@ import { computed } from 'vue'
 import { formatMoney } from '@/helpers/formatMoney'
 import RowWithInfo from '@/components/RowWithInfo.vue'
 import { translate } from '@/helpers/translate'
+import DaysChart from '@/components/DaysChart.vue'
+import Days from '@/components/Days.vue'
 
 const props = defineProps<{
     regulation: Regulation
@@ -23,19 +25,18 @@ const salaryMom = computed(() => {
         return
     }
 
-    const yearlySalary = leaveStore.yearlySalary(true)
+    const dailySalary = leaveStore.dailySalary(true)
 
-    if (yearlySalary === null) {
+    if (dailySalary === null) {
         return
     }
 
-    const normalIncomePerDay = getNormalIncomePerDay(yearlySalary)
-    const payoutPerDay = payoutPerDayForRegulation(props.regulation, normalIncomePerDay)
-    const missedIncomePerDay = missedIncomeForRegulationPerDay(props.regulation, yearlySalary)
+    const payoutPerDay = payoutPerDayForRegulation(props.regulation, dailySalary)
+    const missedIncomePerDay = missedIncomeForRegulationPerDay(props.regulation, dailySalary)
 
     return t('payoutNormalAndMissingMom', {
         payoutPerDay: formatMoney(payoutPerDay),
-        normalIncomePerDay: formatMoney(normalIncomePerDay),
+        normalIncomePerDay: formatMoney(dailySalary),
         missedIncomePerDay: formatMoney(missedIncomePerDay),
     })
 })
@@ -45,19 +46,18 @@ const salarySecondParent = computed(() => {
         return
     }
 
-    const yearlySalary = leaveStore.yearlySalary(false)
+    const dailySalary = leaveStore.dailySalary(false)
 
-    if (yearlySalary === null) {
+    if (dailySalary === null) {
         return
     }
 
-    const normalIncomePerDay = getNormalIncomePerDay(yearlySalary)
-    const payoutPerDay = payoutPerDayForRegulation(props.regulation, normalIncomePerDay)
-    const missedIncomePerDay = missedIncomeForRegulationPerDay(props.regulation, yearlySalary)
+    const payoutPerDay = payoutPerDayForRegulation(props.regulation, dailySalary)
+    const missedIncomePerDay = missedIncomeForRegulationPerDay(props.regulation, dailySalary)
 
     return t('payoutNormalAndMissingPartner', {
         payoutPerDay: formatMoney(payoutPerDay),
-        normalIncomePerDay: formatMoney(normalIncomePerDay),
+        normalIncomePerDay: formatMoney(dailySalary),
         missedIncomePerDay: formatMoney(missedIncomePerDay),
     })
 })
@@ -65,9 +65,15 @@ const salarySecondParent = computed(() => {
 
 <template>
     <RowWithInfo :title="t(regulation.title)">
-        <td :class="{[$style.days]: true, [$style.maxed]: leaveStore.daysUsedByRegulation(regulation.id, true) === regulation.daysOff }" v-if="regulation.mom">{{ leaveStore.daysUsedByRegulation(regulation.id, true) }} / {{ regulation.daysOff }}</td>
+        <td :class="{[$style.days]: true, [$style.maxed]: leaveStore.daysUsedByRegulation(regulation.id, true) === regulation.daysOff }" v-if="regulation.mom">
+            <Days :value="leaveStore.daysUsedByRegulation(regulation.id, true)" /> /
+            <Days :value="regulation.daysOff(leaveStore.personal.normalHoursPerWeekMom)" />
+        </td>
         <td v-if="!regulation.mom" :class="$style.na">N/A</td>
-        <td :class="{[$style.days]: true, [$style.maxed]: leaveStore.daysUsedByRegulation(regulation.id, false) === regulation.daysOff }" v-if="regulation.secondParent">{{ leaveStore.daysUsedByRegulation(regulation.id, false) }} / {{ regulation.daysOff }}</td>
+        <td :class="{[$style.days]: true, [$style.maxed]: leaveStore.daysUsedByRegulation(regulation.id, false) === regulation.daysOff }" v-if="regulation.secondParent">
+            <Days :value="leaveStore.daysUsedByRegulation(regulation.id, false)" /> /
+            <Days :value="regulation.daysOff(leaveStore.personal.normalHoursPerWeekSecondParent)" />
+        </td>
         <td v-if="!regulation.secondParent" :class="$style.na">N/A</td>
 
         <template #info>

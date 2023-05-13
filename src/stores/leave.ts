@@ -12,8 +12,8 @@ export interface Week {
 export interface Regulation {
 	id: string
 	title: keyof MessageSchema
-	daysOff: number
-	fixedDaysOff: number[]
+	daysOff: (normalHoursPerWeek: number) => number
+	fixedDaysOff: (normalHoursPerWeek: number) => number[]
 	mom: boolean
 	secondParent: boolean
 	percentageOfSalary: number
@@ -36,13 +36,14 @@ interface Leave {
 		daysPerWeek: number | null
 		grossYearlySalaryMom: number | null
 		grossYearlySalarySecondParent: number | null
+		normalHoursPerWeekMom: number
+		normalHoursPerWeekSecondParent: number
 	}
 	facts: {
 		maxDaySalary: number
 	}
 	regulations: Regulation[]
 	weeks: Week[]
-	presets: Preset[]
 	hasDragged: boolean
 }
 
@@ -50,8 +51,8 @@ const defaultRegulations: Regulation[] = [
 	{
 		id: 'delivery',
 		title: 'regulationDeliveryTitle',
-		daysOff: 12 * 5,
-		fixedDaysOff: [5, 5, 5, 5, 5, 5],
+		daysOff: normalHoursPerWeek => 12 * normalHoursPerWeek / 8,
+		fixedDaysOff: normalHoursPerWeek => Array(5).fill(normalHoursPerWeek / 8),
 		mom: true,
 		secondParent: false,
 		percentageOfSalary: 100,
@@ -64,8 +65,8 @@ const defaultRegulations: Regulation[] = [
 	{
 		id: 'birth',
 		title: 'regulationBirthTitle',
-		daysOff: 5,
-		fixedDaysOff: [5],
+		daysOff: normalHoursPerWeek => normalHoursPerWeek / 8,
+		fixedDaysOff: normalHoursPerWeek => [normalHoursPerWeek / 8],
 		mom: false,
 		secondParent: true,
 		percentageOfSalary: 100,
@@ -78,8 +79,8 @@ const defaultRegulations: Regulation[] = [
 	{
 		id: 'additionalBirth',
 		title: 'regulationAdditionalBirthTitle',
-		daysOff: 5 * 5,
-		fixedDaysOff: [],
+		daysOff: normalHoursPerWeek => 5 * normalHoursPerWeek / 8,
+		fixedDaysOff: normalHoursPerWeek => [],
 		mom: false,
 		secondParent: true,
 		percentageOfSalary: 70,
@@ -92,8 +93,8 @@ const defaultRegulations: Regulation[] = [
 	{
 		id: 'paidParental',
 		title: 'regulationPaidParentalTitle',
-		daysOff: 9 * 5,
-		fixedDaysOff: [],
+		daysOff: normalHoursPerWeek => 9 * normalHoursPerWeek / 8,
+		fixedDaysOff: normalHoursPerWeek => [],
 		mom: true,
 		secondParent: true,
 		percentageOfSalary: 70,
@@ -106,8 +107,8 @@ const defaultRegulations: Regulation[] = [
 	{
 		id: 'unpaidParental',
 		title: 'regulationUnpaidParentalTitle',
-		daysOff: 17 * 5,
-		fixedDaysOff: [],
+		daysOff: normalHoursPerWeek => 17 * normalHoursPerWeek / 8,
+		fixedDaysOff: normalHoursPerWeek => [],
 		mom: true,
 		secondParent: true,
 		percentageOfSalary: 0,
@@ -116,59 +117,6 @@ const defaultRegulations: Regulation[] = [
 		infoList: 'regulationUnpaidParentalInfoListHtml',
 		infoLink: 'regulationUnpaidParentalInfoLinkHtml',
 		url: 'https://www.rijksoverheid.nl/onderwerpen/ouderschapsverlof/vraag-en-antwoord/wanneer-heb-ik-recht-op-betaald-ouderschapsverlof'
-	}
-]
-
-const defaultPresets: Preset[] = [
-	{
-		title: 'presetAsLittleAsPossible',
-		mom: getCombinedMinimumDays(true),
-		secondParent: getCombinedMinimumDays(false),
-	},
-	{
-		title: 'presetEverythingImmediately',
-		mom: getCombinedMinimumDays(true).concat(
-			divideOverWeeks(totalFlexibleDays(true), 5)
-		),
-		secondParent: getCombinedMinimumDays(false).concat(
-			divideOverWeeks(totalFlexibleDays(false), 5)
-		)
-	},
-	{
-		title: 'presetMonthlySwitch',
-		mom: getCombinedMinimumDays(true).concat(
-			monthlySwitch(totalFlexibleDays(true), 5)
-		),
-		secondParent: getCombinedMinimumDays(false).concat(5).concat(
-			monthlySwitch(totalFlexibleDays(false) - 5, 5)
-		),
-	},
-	{
-		title: 'presetPartTimersMom',
-		mom: getCombinedMinimumDays(true).concat(
-			divideOverWeeks(totalFlexibleDays(true), 2)
-		),
-		secondParent: getCombinedMinimumDays(false).concat(
-			divideOverWeeks(totalFlexibleDays(false), 3)
-		),
-	},
-	{
-		title: 'presetPartTimersPartner',
-		mom: getCombinedMinimumDays(true).concat(
-			divideOverWeeks(totalFlexibleDays(true), 3)
-		),
-		secondParent: getCombinedMinimumDays(false).concat(
-			divideOverWeeks(totalFlexibleDays(false), 2)
-		),
-	},
-	{
-		title: 'presetEqualPartTimers',
-		mom: getCombinedMinimumDays(true).concat(
-			divideOverWeeks(totalFlexibleDays(true), 2)
-		),
-		secondParent: getCombinedMinimumDays(false).concat(
-			divideOverWeeks(totalFlexibleDays(false), 2)
-		),
 	}
 ]
 
@@ -186,13 +134,14 @@ export const useLeaveStore = defineStore('leave', {
 			daysPerWeek: null,
 			grossYearlySalaryMom: null,
 			grossYearlySalarySecondParent: null,
+			normalHoursPerWeekMom: 40,
+			normalHoursPerWeekSecondParent: 40
 		},
 		facts: {
 			maxDaySalary: 256,
 		},
 		regulations: defaultRegulations,
-		weeks: getWeeksForPreset(defaultPresets[0]),
-		presets: defaultPresets,
+		weeks: [], // getWeeksForPreset(defaultPresets[0]),
 		hasDragged: false,
 	}),
 	getters: {
@@ -219,21 +168,22 @@ export const useLeaveStore = defineStore('leave', {
 					mom ? regulation.mom : regulation.secondParent
 				)
 
+				const normalHoursPerWeek = mom ? state.personal.normalHoursPerWeekMom : state.personal.normalHoursPerWeekSecondParent
 				let daysUsedByOtherRegulations = 0
 				let currentIndex: number = 0
 				while (relevantRegulations[currentIndex] && relevantRegulations[currentIndex].id !== regulationId) {
 					daysUsedByOtherRegulations = Math.min(
 						totalDaysUsed,
-						daysUsedByOtherRegulations + relevantRegulations[currentIndex].daysOff
+						daysUsedByOtherRegulations + relevantRegulations[currentIndex].daysOff(normalHoursPerWeek)
 					)
-					currentIndex ++
+					currentIndex++
 				}
 
 				const currentRegulation = state.regulations.find(regulation =>
 					regulation.id === regulationId
 				)
 
-				return Math.min(currentRegulation!!.daysOff, totalDaysUsed - daysUsedByOtherRegulations)
+				return Math.min(currentRegulation!!.daysOff(normalHoursPerWeek), totalDaysUsed - daysUsedByOtherRegulations)
 			}
 
 			this.regulations.forEach(regulation => {
@@ -269,11 +219,11 @@ export const useLeaveStore = defineStore('leave', {
 		daysOffFullyPaid(state): (mom: boolean) => number {
 			return (mom: boolean) => {
 				const regulations = state.regulations.filter(regulation =>
-					regulation.percentageOfSalary === 100
-					&& regulation.dailySalaryMax === null
-					&& (
-						(mom && regulation.mom) || (!mom && regulation.secondParent)
-					)
+						regulation.percentageOfSalary === 100
+						&& regulation.dailySalaryMax === null
+						&& (
+							(mom && regulation.mom) || (!mom && regulation.secondParent)
+						)
 				)
 
 				return this.daysOffByMultipleRegulations(regulations, mom)
@@ -282,11 +232,11 @@ export const useLeaveStore = defineStore('leave', {
 		daysOffAtMaxUwv(state): (mom: boolean) => number {
 			return (mom: boolean) => {
 				const regulations = state.regulations.filter(regulation =>
-					regulation.percentageOfSalary === 100
-					&& regulation.dailySalaryMax === uwvMaximumDagloon
-					&& (
-						(mom && regulation.mom) || (!mom && regulation.secondParent)
-					)
+						regulation.percentageOfSalary === 100
+						&& regulation.dailySalaryMax === uwvMaximumDagloon
+						&& (
+							(mom && regulation.mom) || (!mom && regulation.secondParent)
+						)
 				)
 
 				return this.daysOffByMultipleRegulations(regulations, mom)
@@ -295,11 +245,11 @@ export const useLeaveStore = defineStore('leave', {
 		daysOffAt70Percent(state): (mom: boolean) => number {
 			return (mom: boolean) => {
 				const regulations = state.regulations.filter(regulation =>
-					regulation.percentageOfSalary === 70
-					&& regulation.dailySalaryMax === 0.7 * uwvMaximumDagloon
-					&& (
-						(mom && regulation.mom) || (!mom && regulation.secondParent)
-					)
+						regulation.percentageOfSalary === 70
+						&& regulation.dailySalaryMax === 0.7 * uwvMaximumDagloon
+						&& (
+							(mom && regulation.mom) || (!mom && regulation.secondParent)
+						)
 				)
 
 				return this.daysOffByMultipleRegulations(regulations, mom)
@@ -308,10 +258,10 @@ export const useLeaveStore = defineStore('leave', {
 		daysOffUnpaid(state): (mom: boolean) => number {
 			return (mom: boolean) => {
 				const regulations = state.regulations.filter(regulation =>
-					regulation.percentageOfSalary === 0
-					&& (
-						(mom && regulation.mom) || (!mom && regulation.secondParent)
-					)
+						regulation.percentageOfSalary === 0
+						&& (
+							(mom && regulation.mom) || (!mom && regulation.secondParent)
+						)
 				)
 
 				return this.daysOffByMultipleRegulations(regulations, mom)
@@ -334,7 +284,9 @@ export const useLeaveStore = defineStore('leave', {
 					return null
 				}
 
-				return yearly / officalAverageWorkingDaysPerYear
+				const hoursPerWeek = mom ? state.personal.normalHoursPerWeekMom : state.personal.normalHoursPerWeekSecondParent
+
+				return (40 / hoursPerWeek) * (yearly / officalAverageWorkingDaysPerYear)
 			}
 		},
 		payoutAtMaxUwv(state): (mom: boolean) => number | null {
@@ -350,24 +302,24 @@ export const useLeaveStore = defineStore('leave', {
 		},
 		missedIncomeAtMaxUwv(state): (mom: boolean) => number | null {
 			return (mom: boolean) => {
-				const yearlySalary = this.yearlySalary(mom)
+				const dailySalary = this.dailySalary(mom)
 
-				if (yearlySalary === null) {
+				if (dailySalary === null) {
 					return null
 				}
 
-				return missedIncomeForParametersPerDay(100, uwvMaximumDagloon, yearlySalary)
+				return missedIncomeForParametersPerDay(100, uwvMaximumDagloon, dailySalary)
 			}
 		},
 		missedIncomeAt70Percent(state): (mom: boolean) => number | null {
 			return (mom: boolean) => {
-				const yearlySalary = this.yearlySalary(mom)
+				const dailySalary = this.dailySalary(mom)
 
-				if (yearlySalary === null) {
+				if (dailySalary === null) {
 					return null
 				}
 
-				return missedIncomeForParametersPerDay(70, 0.7 * uwvMaximumDagloon, yearlySalary)
+				return missedIncomeForParametersPerDay(70, 0.7 * uwvMaximumDagloon, dailySalary)
 			}
 		},
 		payoutAt70Percent(state): (mom: boolean) => number | null {
@@ -383,30 +335,151 @@ export const useLeaveStore = defineStore('leave', {
 		},
 		missedIncomeUnpaid(state): (mom: boolean) => number | null {
 			return (mom: boolean) => {
-				const yearlySalary = this.yearlySalary(mom)
+				const dailySalary = this.dailySalary(mom)
 
-				if (yearlySalary === null) {
+				if (dailySalary === null) {
 					return null
 				}
 
-				return missedIncomeForParametersPerDay(0, 0, yearlySalary)
+				return missedIncomeForParametersPerDay(0, 0, dailySalary)
 			}
 		},
 		totalMissedIncome(state): (mom: boolean) => number | null {
 			return (mom: boolean) => {
-				const yearlySalary = this.yearlySalary(mom)
+				const dailySalary = this.dailySalary(mom)
 
-				if (yearlySalary === null) {
+				if (dailySalary === null) {
 					return null
 				}
 
 				return state.regulations.reduce((total: number, regulation: Regulation) => {
 					const usedDays = this.daysUsedByRegulation(regulation.id, mom)
-					const missedIncomePerDay = missedIncomeForRegulationPerDay(regulation, yearlySalary!!)
+					const missedIncomePerDay = missedIncomeForRegulationPerDay(regulation, dailySalary!!)
 					return total + usedDays * missedIncomePerDay
 				}, 0)
 			}
 		},
+		totalFlexibleDays(state): (mom: boolean) => number {
+			return (mom: boolean) => {
+				const normalHoursPerWeek = mom ? state.personal.normalHoursPerWeekMom : state.personal.normalHoursPerWeekSecondParent
+
+				return defaultRegulations
+						.filter(regulation => mom ? regulation.mom : regulation.secondParent)
+						.reduce((prev: number, regulation: Regulation) => prev + regulation.daysOff(normalHoursPerWeek), 0)
+					- this.getTotalMinimumDays(mom)
+			}
+		},
+		presets(state): Preset[] {
+			return [
+				{
+					title: 'presetAsLittleAsPossible',
+					mom: this.getCombinedMinimumDays(true),
+					secondParent: this.getCombinedMinimumDays(false),
+				},
+				{
+					title: 'presetEverythingImmediately',
+					mom: this.getCombinedMinimumDays(true).concat(
+						divideOverWeeks(this.totalFlexibleDays(true), 5)
+					),
+					secondParent: this.getCombinedMinimumDays(false).concat(
+						divideOverWeeks(this.totalFlexibleDays(false), 5)
+					)
+				},
+				{
+					title: 'presetMonthlySwitch',
+					mom: this.getCombinedMinimumDays(true).concat(
+						monthlySwitch(this.totalFlexibleDays(true), 5)
+					),
+					secondParent: this.getCombinedMinimumDays(false).concat(5).concat(
+						monthlySwitch(this.totalFlexibleDays(false) - 5, 5)
+					),
+				},
+				{
+					title: 'presetPartTimersMom',
+					mom: this.getCombinedMinimumDays(true).concat(
+						divideOverWeeks(this.totalFlexibleDays(true), 2)
+					),
+					secondParent: this.getCombinedMinimumDays(false).concat(
+						divideOverWeeks(this.totalFlexibleDays(false), 3)
+					),
+				},
+				{
+					title: 'presetPartTimersPartner',
+					mom: this.getCombinedMinimumDays(true).concat(
+						divideOverWeeks(this.totalFlexibleDays(true), 3)
+					),
+					secondParent: this.getCombinedMinimumDays(false).concat(
+						divideOverWeeks(this.totalFlexibleDays(false), 2)
+					),
+				},
+				{
+					title: 'presetEqualPartTimers',
+					mom: this.getCombinedMinimumDays(true).concat(
+						divideOverWeeks(this.totalFlexibleDays(true), 2)
+					),
+					secondParent: this.getCombinedMinimumDays(false).concat(
+						divideOverWeeks(this.totalFlexibleDays(false), 2)
+					),
+				}
+			]
+		},
+
+		getCombinedMinimumDays(state): (mom: boolean) => number[] {
+			return (mom: boolean) => {
+				const regulations = defaultRegulations.filter(regulation =>
+					mom ? regulation.mom : regulation.secondParent
+				)
+
+				const normalHoursPerWeek = mom ? state.personal.normalHoursPerWeekMom : state.personal.normalHoursPerWeekSecondParent
+
+				return regulations.reduce((combined: number[], regulation) => {
+					regulation.fixedDaysOff(normalHoursPerWeek).forEach((fixed, i) => {
+						if (combined[i]) {
+							combined[i] += fixed
+						} else {
+							combined[i] = fixed
+						}
+					})
+					return combined
+				}, [])
+			}
+		},
+
+		getTotalMinimumDays(state): (mom: boolean) => number {
+			return (mom: boolean) => {
+				return this.getCombinedMinimumDays(mom).reduce((total: number, days: number) =>
+					total + days, 0
+				)
+			}
+		},
+
+		getMinimumDaysInWeek(state): (mom: boolean, weekNumber: number) => number | null {
+			return (mom: boolean, weekNumber: number) => {
+				return this.getCombinedMinimumDays(mom)[weekNumber - 1] || null
+			}
+		},
+
+		childCareDaysPerWeek(state): (week: Week) => number {
+			return (week: Week) => {
+				const freeWeekDaysMom = (40 - state.personal.normalHoursPerWeekMom) / 8
+				const freeWeekDaysSecondParent = (40 - state.personal.normalHoursPerWeekSecondParent) / 8
+
+				return Math.max(0,
+					5
+					- week.daysOffMom
+					- week.daysOffSecondParent
+					- freeWeekDaysMom
+					- freeWeekDaysSecondParent
+				)
+			}
+		},
+
+		totalChildcareDays(state): number {
+			return state.weeks.reduce(
+				(total, week) => total + this.childCareDaysPerWeek(week)
+				, 0
+			)
+		}
 	},
 	actions: {
 		setDays(weekNumber: number, days: number, mom: boolean) {
@@ -427,18 +500,28 @@ export const useLeaveStore = defineStore('leave', {
 				this.personal.grossYearlySalarySecondParent = salary
 			}
 		},
+		setNormalHoursPerWeek(hoursPerWeek: number, mom: boolean) {
+			if ((hoursPerWeek < 1) || isNaN(hoursPerWeek)) {
+				return
+			}
+
+			if (mom) {
+				this.personal.normalHoursPerWeekMom = hoursPerWeek
+			} else {
+				this.personal.normalHoursPerWeekSecondParent = hoursPerWeek
+			}
+		},
 		setDueDate(dueDate: Date) {
 			this.personal.dueDate = dueDate
 		},
 		setDragged() {
 			this.hasDragged = true
+		},
+		setWeeks(weeks: Week[]) {
+			this.weeks = weeks
 		}
 	}
 })
-
-export function getNormalIncomePerDay(grossYearlySalary: number): number {
-	return grossYearlySalary / officalAverageWorkingDaysPerYear
-}
 
 function payoutPerDayForParameters(
 	percentageOfSalary: number,
@@ -468,27 +551,20 @@ export function payoutPerDayForRegulation(
 export function missedIncomeForParametersPerDay(
 	percentageOfSalary: number,
 	dailySalaryMax: number | null,
-	grossYearlySalary: number
+	dailySalary: number
 ): number {
-	const dagloon = getNormalIncomePerDay(grossYearlySalary)
-	const payout = payoutPerDayForParameters(percentageOfSalary, dailySalaryMax, dagloon)
-	return dagloon - payout
+	const payout = payoutPerDayForParameters(percentageOfSalary, dailySalaryMax, dailySalary)
+	return dailySalary - payout
 }
 
-export function missedIncomeForRegulationPerDay(regulation: Regulation, grossYearlySalary: number): number {
+export function missedIncomeForRegulationPerDay(regulation: Regulation, dailySalary: number): number {
 	return missedIncomeForParametersPerDay(
 		regulation.percentageOfSalary,
 		regulation.dailySalaryMax,
-		grossYearlySalary
+		dailySalary
 	)
 }
 
-function totalFlexibleDays(mom: boolean): number {
-	return defaultRegulations
-		.filter(regulation => mom ? regulation.mom : regulation.secondParent)
-		.reduce((prev: number, regulation: Regulation) => prev + regulation.daysOff, 0)
-		- getTotalMinimumDays(mom)
-}
 
 function divideOverWeeks(daysAvailable: number, daysPerWeek: number): number[] {
 	const fullWeeks = Math.floor(daysAvailable / daysPerWeek)
@@ -511,34 +587,8 @@ function monthlySwitch(daysAvailable: number, daysPerWeek: number): number[] {
 	return result
 }
 
-function getCombinedMinimumDays(mom: boolean): number[] {
-	const regulations = defaultRegulations.filter(regulation =>
-		mom ? regulation.mom : regulation.secondParent
-	)
 
-	return regulations.reduce((combined: number[], regulation) => {
-		regulation.fixedDaysOff.forEach((fixed, i) => {
-			if (combined[i]) {
-				combined[i] += fixed
-			} else {
-				combined[i] = fixed
-			}
-		})
-		return combined
-	}, [])
-}
-
-function getTotalMinimumDays(mom: boolean): number {
-	return getCombinedMinimumDays(mom).reduce((total: number, days: number) =>
-		total + days, 0
-	)
-}
-
-export function getMinimumDaysInWeek(mom: boolean, weekNumber: number): number | null {
-	return getCombinedMinimumDays(mom)[weekNumber - 1] || null
-}
-
-function getWeeksForPreset(preset: Preset): Week[] {
+export function getWeeksForPreset(preset: Preset): Week[] {
 	return Array(52).fill(null).map((value, i) => ({
 		daysOffMom: preset.mom[i] || 0,
 		daysOffSecondParent: preset.secondParent[i] || 0
