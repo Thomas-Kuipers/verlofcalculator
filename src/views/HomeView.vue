@@ -35,7 +35,7 @@ const { t } = translate()
                     <Financial />
                 </table>
                 <Analysis />
-                <TextContent>
+                <TextContent :class="$style.about">
                     <div v-html="t('feedbackHtml')" />
                 </TextContent>
             </aside>
@@ -100,5 +100,9 @@ const { t } = translate()
     @include responsive.desktop {
         max-width: 50%;
     }
+}
+
+.about {
+    padding-right: 16px;
 }
 </style>

@@ -11,15 +11,13 @@ const daysOffPartner = computed(() => leaveStore.totalDaysUsed(false))
 const maxWidth = 300
 
 const momFactor = computed(() => {
-    const maxValue = Math.max(daysOffMom.value, daysOffPartner.value)
-    return daysOffMom.value / maxValue
+    return daysOffMom.value / (daysOffMom.value + daysOffPartner.value)
 })
 
 const widthMom = computed(() => Math.round(momFactor.value * maxWidth))
 
 const partnerFactor = computed(() => {
-    const maxValue = Math.max(daysOffMom.value, daysOffPartner.value)
-    return daysOffPartner.value / maxValue
+    return daysOffPartner.value / (daysOffMom.value + daysOffPartner.value)
 })
 
 const widthPartner = computed(() =>  Math.round(partnerFactor.value * maxWidth))
@@ -82,11 +80,11 @@ const { t } = translate()
         <ul>
             <li :class="$style.item">
                 <div :class="$style.bar" :style="{ width: widthMom + 'px', background: momColor }" />
-                <div :class="$style.value">{{ t('chartDaysMom', { days: Math.round(daysOffMom * 10) / 10 }) }}</div>
+                <div :class="$style.value">{{ t('chartDaysMom', { days: Math.round(daysOffMom * 10) / 10 }) }} ({{ Math.round(momFactor * 100) }}%)</div>
             </li>
             <li :class="$style.item">
                 <div :class="$style.bar" :style="{ width: widthPartner + 'px', background: partnerColor }" />
-                <div :class="$style.value">{{ t('chartDaysPartner', { days: Math.round(daysOffPartner * 10) / 10 }) }}</div>
+                <div :class="$style.value">{{ t('chartDaysPartner', { days: Math.round(daysOffPartner * 10) / 10 }) }} ({{ Math.round(partnerFactor * 100) }}%)</div>
             </li>
         </ul>
     </div>
