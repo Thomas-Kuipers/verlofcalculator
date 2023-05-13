@@ -377,6 +377,12 @@ export const useLeaveStore = defineStore('leave', {
 					- this.getTotalMinimumDays(mom)
 			}
 		},
+		normalDaysPerWeek(state): (mom: boolean) => number {
+			return (mom: boolean) => {
+				const hours = mom ? state.personal.normalHoursPerWeekMom : state.personal.normalHoursPerWeekSecondParent
+				return hours / 8
+			}
+		},
 		presets(state): Preset[] {
 			return [
 				{
@@ -387,19 +393,19 @@ export const useLeaveStore = defineStore('leave', {
 				{
 					title: 'presetEverythingImmediately',
 					mom: this.getCombinedMinimumDays(true).concat(
-						divideOverWeeks(this.totalFlexibleDays(true), 5)
+						divideOverWeeks(this.totalFlexibleDays(true), this.normalDaysPerWeek(true))
 					),
 					secondParent: this.getCombinedMinimumDays(false).concat(
-						divideOverWeeks(this.totalFlexibleDays(false), 5)
+						divideOverWeeks(this.totalFlexibleDays(false), this.normalDaysPerWeek(false))
 					)
 				},
 				{
 					title: 'presetMonthlySwitch',
 					mom: this.getCombinedMinimumDays(true).concat(
-						monthlySwitch(this.totalFlexibleDays(true), 5)
+						monthlySwitch(this.totalFlexibleDays(true), this.normalDaysPerWeek(true))
 					),
 					secondParent: this.getCombinedMinimumDays(false).concat(5).concat(
-						monthlySwitch(this.totalFlexibleDays(false) - 5, 5)
+						monthlySwitch(this.totalFlexibleDays(false) - 5, this.normalDaysPerWeek(false))
 					),
 				},
 				{

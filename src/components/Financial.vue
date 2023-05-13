@@ -105,15 +105,17 @@ const { t } = translate()
             :days="leaveStore.daysOffUnpaid(false)"
         />
         <template #info>
-            <li>{{ t('appliesToRegulations', {
-                regulations: leaveStore.regulationsUnpaid.map(regulation => t(regulation.title)).join(', ')
-            })}}</li>
-            <li v-if="leaveStore.dailySalary(true) !== null">
-                {{ t('daysOffUnpaidMomCost', { dailySalary: formatMoney(leaveStore.dailySalary(true)) } )}}
-            </li>
-            <li v-if="leaveStore.dailySalary(false) !== null">
-                {{ t('daysOffUnpaidPartnerCost', { dailySalary: formatMoney(leaveStore.dailySalary(false)) } )}}
-            </li>
+            <ul>
+                <li>{{ t('appliesToRegulations', {
+                    regulations: leaveStore.regulationsUnpaid.map(regulation => t(regulation.title)).join(', ')
+                })}}</li>
+                <li v-if="leaveStore.dailySalary(true) !== null">
+                    {{ t('daysOffUnpaidMomCost', { dailySalary: formatMoney(leaveStore.dailySalary(true)) } )}}
+                </li>
+                <li v-if="leaveStore.dailySalary(false) !== null">
+                    {{ t('daysOffUnpaidPartnerCost', { dailySalary: formatMoney(leaveStore.dailySalary(false)) } )}}
+                </li>
+            </ul>
         </template>
     </RowWithInfo>
     <tr>
