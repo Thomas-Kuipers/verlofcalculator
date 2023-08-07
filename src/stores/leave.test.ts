@@ -73,6 +73,28 @@ describe('Leave store', () => {
         expect(store.daysUsedByRegulation('additionalBirth', true)).toBe(0)
         expect(store.daysUsedByRegulation('paidParental', true)).toBe(45)
         expect(store.daysUsedByRegulation('unpaidParental', true)).toBe(85)
+        expect(store.daysOffAtMaxUwv(true)).toBe(60)
+        expect(store.daysOffAt70Percent(true)).toBe(45)
+        expect(store.daysOffUnpaid(true)).toBe(85)
         expect(store.totalDaysUsed(true)).toBe(5 * 52)
+    })
+
+    test('Calculate missed income when taking the entire year off for mom', () => {
+        const store= useLeaveStore()
+        const weeks = Array(52).fill(null).map(() => ({
+            daysOffMom: 5,
+            daysOffSecondParent: 0
+        }))
+        store.setWeeks(weeks)
+        store.setGrossYearlySalary(100_000, true)
+        const daily = store.dailySalary(true)!!
+        const missedAtMaxUwv = daily - uwvMaximumDagloon
+        const missedAt70Percent = daily - 0.7 * uwvMaximumDagloon
+        const totalMissed =
+            missedAtMaxUwv * store.daysOffAtMaxUwv(true)
+            + missedAt70Percent * store.daysOffAt70Percent(true)
+            + daily * store.daysOffUnpaid(true)
+
+        expect(store.totalMissedIncome(true)).toBe(totalMissed)
     })
 })
