@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { MessageSchema } from '@/main'
 
 export const uwvMaximumDagloon = 256.54
-const officalAverageWorkingDaysPerYear = 261
+export const officalAverageWorkingDaysPerYear = 261
 
 export interface Week {
 	daysOffMom: number
