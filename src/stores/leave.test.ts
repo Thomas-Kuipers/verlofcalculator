@@ -1,6 +1,6 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, test } from 'vitest'
-import { officalAverageWorkingDaysPerYear, useLeaveStore, uwvMaximumDagloon } from './leave'
+import { getWeeksForPreset, officalAverageWorkingDaysPerYear, useLeaveStore, uwvMaximumDagloon } from './leave'
 
 describe('Leave store', () => {
     beforeEach(() => {
@@ -47,5 +47,32 @@ describe('Leave store', () => {
         const store= useLeaveStore()
         store.setGrossYearlySalary(20_000, true)
         expect(store.payoutAt70Percent(true)).toBe(store.dailySalary(true)!! * .7)
+    })
+
+    test('Calculate missed income at 70% of UWV for high-earning mom', () => {
+        const store= useLeaveStore()
+        store.setGrossYearlySalary(100_000, true)
+        expect(store.missedIncomeAt70Percent(true)).toBe(store.dailySalary(true)!! - uwvMaximumDagloon * .7)
+    })
+
+    test('Calculate number of days off fully paid for mom', () => {
+        const store= useLeaveStore()
+        store.setWeeks(getWeeksForPreset(store.presets[0]))
+        expect(store.daysOffAtMaxUwv(true)).toBe(25)
+    })
+
+    test('Calculate days off when taking the entire year off for mom', () => {
+        const store= useLeaveStore()
+        const weeks = Array(52).fill(null).map(() => ({
+            daysOffMom: 5,
+            daysOffSecondParent: 0
+        }))
+        store.setWeeks(weeks)
+        expect(store.daysUsedByRegulation('delivery', true)).toBe(60)
+        expect(store.daysUsedByRegulation('birth', true)).toBe(0)
+        expect(store.daysUsedByRegulation('additionalBirth', true)).toBe(0)
+        expect(store.daysUsedByRegulation('paidParental', true)).toBe(45)
+        expect(store.daysUsedByRegulation('unpaidParental', true)).toBe(85)
+        expect(store.totalDaysUsed(true)).toBe(5 * 52)
     })
 })

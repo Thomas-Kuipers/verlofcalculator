@@ -160,6 +160,18 @@ export const useLeaveStore = defineStore('leave', {
 		daysUsedForAllRegulations(state): DaysUsedForAllRegulations {
 			const result: DaysUsedForAllRegulations = {}
 			const calculate = (regulationId: string, mom: boolean): number => {
+				const currentRegulation = state.regulations.find(regulation =>
+					regulation.id === regulationId
+				)
+
+				if (mom && !currentRegulation!!.mom) {
+					return 0
+				}
+
+				if (!mom && !currentRegulation!!.secondParent) {
+					return 0
+				}
+
 				const totalDaysUsed: number = state.weeks.reduce((total: number, week: Week) =>
 						total + (mom ? week.daysOffMom : week.daysOffSecondParent)
 					, 0)
@@ -178,10 +190,6 @@ export const useLeaveStore = defineStore('leave', {
 					)
 					currentIndex++
 				}
-
-				const currentRegulation = state.regulations.find(regulation =>
-					regulation.id === regulationId
-				)
 
 				return Math.min(currentRegulation!!.daysOff(normalHoursPerWeek), totalDaysUsed - daysUsedByOtherRegulations)
 			}
@@ -239,7 +247,7 @@ export const useLeaveStore = defineStore('leave', {
 		},
 		daysOffAtMaxUwv(state): (mom: boolean) => number {
 			return (mom: boolean) => {
-				const regulations = this.regulationsFullyPaid.filter(regulation =>
+				const regulations = this.regulationsMaxUwv.filter(regulation =>
 					(mom && regulation.mom) || (!mom && regulation.secondParent)
 				)
 
