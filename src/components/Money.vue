@@ -4,10 +4,17 @@ import { formatMoney } from '@/helpers/formatMoney'
 
 const props = defineProps<{
     value: number | null
+    estimate?: boolean
     hideZero?: boolean
 }>()
 
-const formatted = computed(() => formatMoney(props.value))
+const formatted = computed(() => {
+    if (props.estimate && props.value !== null) {
+        return '~ ' + formatMoney(Math.round(props.value / 100) * 100)
+    }
+
+    return formatMoney(props.value)
+})
 </script>
 
 <template>

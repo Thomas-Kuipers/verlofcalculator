@@ -9,6 +9,11 @@ export interface Week {
 	daysOffSecondParent: number
 }
 
+export interface YearMonth {
+	year: number
+	month: number
+}
+
 export interface Regulation {
 	id: string
 	title: keyof MessageSchema
@@ -120,6 +125,15 @@ const defaultRegulations: Regulation[] = [
 	}
 ]
 
+interface DaysUsedPerRegulationPerYearMonth {
+	[yearMonth: string]: {
+		[regulationId: string]: {
+			mom: number
+			secondParent: number
+		}
+	}
+}
+
 interface DaysUsedForAllRegulations {
 	[regulationId: string]: {
 		mom: number
@@ -130,7 +144,7 @@ interface DaysUsedForAllRegulations {
 export const useLeaveStore = defineStore('leave', {
 	state: (): Leave => ({
 		personal: {
-			dueDate: null,
+			dueDate: new Date('2023-12-14'),
 			daysPerWeek: null,
 			grossYearlySalaryMom: null,
 			grossYearlySalarySecondParent: null,
@@ -156,6 +170,64 @@ export const useLeaveStore = defineStore('leave', {
 					total.concat(mom ? week.daysOffMom : week.daysOffSecondParent),
 				[]
 			)
+		},
+		daysOffInYearMonth(state): (yearMonth: YearMonth, mom: boolean) => number | null {
+			return (yearMonth: YearMonth, mom: boolean) => {
+				if (state.personal.dueDate === null) {
+					return null
+				}
+
+				let daysOff: number
+
+				state.weeks.forEach((week, i) => {
+					// const startDate =
+					// const endDate =
+				})
+
+				const totalDaysUsed: number = state.weeks.reduce((total: number, week: Week) =>
+						total + (mom ? week.daysOffMom : week.daysOffSecondParent)
+					, 0)
+
+				return 1
+			}
+		},
+		daysUsedPerRegulationPerYearMonth(state): DaysUsedPerRegulationPerYearMonth {
+			const result: DaysUsedPerRegulationPerYearMonth = {}
+			const calculate = (regulationId: string, mom: boolean, yearMonth: YearMonth): number => {
+				const totalDaysUsed: number = state.weeks.reduce((total: number, week: Week) =>
+						total + (mom ? week.daysOffMom : week.daysOffSecondParent)
+					, 0)
+
+				const relevantRegulations = state.regulations.filter(regulation =>
+					mom ? regulation.mom : regulation.secondParent
+				)
+
+				const normalHoursPerWeek = mom ? state.personal.normalHoursPerWeekMom : state.personal.normalHoursPerWeekSecondParent
+				let daysUsedByOtherRegulations = 0
+				let currentIndex: number = 0
+				while (relevantRegulations[currentIndex] && relevantRegulations[currentIndex].id !== regulationId) {
+					daysUsedByOtherRegulations = Math.min(
+						totalDaysUsed,
+						daysUsedByOtherRegulations + relevantRegulations[currentIndex].daysOff(normalHoursPerWeek)
+					)
+					currentIndex++
+				}
+
+				const currentRegulation = state.regulations.find(regulation =>
+					regulation.id === regulationId
+				)
+
+				return Math.min(currentRegulation!!.daysOff(normalHoursPerWeek), totalDaysUsed - daysUsedByOtherRegulations)
+			}
+
+			// this.regulations.forEach(regulation => {
+			// 	result[regulation.id] = {
+			// 		mom: calculate(regulation.id, true),
+			// 		secondParent: calculate(regulation.id, false)
+			// 	}
+			// })
+
+			return result
 		},
 		daysUsedForAllRegulations(state): DaysUsedForAllRegulations {
 			const result: DaysUsedForAllRegulations = {}
@@ -493,6 +565,27 @@ export const useLeaveStore = defineStore('leave', {
 				(total, week) => total + this.childCareDaysPerWeek(week)
 				, 0
 			)
+		},
+
+		yearMonths(state): YearMonth[] {
+			if (state.personal.dueDate === null) {
+				return []
+			}
+
+			const date = new Date(state.personal.dueDate.valueOf())
+			const result: YearMonth[] = []
+
+			for (let i = 0; i < 12; i ++) {
+				const yearMonth = {
+					year: date.getFullYear(),
+					month: date.getMonth()
+				}
+
+				date.setMonth(date.getMonth() + 1)
+				result.push(yearMonth)
+			}
+
+			return result
 		}
 	},
 	actions: {

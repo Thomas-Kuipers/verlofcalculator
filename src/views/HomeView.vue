@@ -8,6 +8,7 @@ import { translate } from '@/helpers/translate'
 import LanguageSelector from '@/components/LanguageSelector.vue'
 import DaysChart from '@/components/DaysChart.vue'
 import Settings from '@/components/Settings.vue'
+import FinancialMonthly from '@/components/FinancialMonthly.vue'
 
 const { t } = translate()
 </script>
@@ -33,6 +34,10 @@ const { t } = translate()
                         <td colspan="3" :class="$style.spacer"></td>
                     </tr>
                     <Financial />
+                    <tr>
+                        <td colspan="3" :class="$style.spacer"></td>
+                    </tr>
+                    <FinancialMonthly />
                 </table>
                 <Analysis />
                 <TextContent :class="$style.about">
