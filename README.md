@@ -1,6 +1,10 @@
 # Verlof Calculator
 
-Hosted on [verlofcalculator.nl](https://verlofcalculator.nl/)
+Demo: [verlofcalculator.nl](https://verlofcalculator.nl/)
+
+Hosted at Netlify 
+
+[![Netlify Status](https://api.netlify.com/api/v1/badges/1fbf01da-4e68-4ee9-a6d7-2398d8832695/deploy-status)](https://app.netlify.com/sites/exquisite-pony-502b40/deploys)
 
 ## Project setup
 ```
@@ -16,6 +20,3 @@ npm run serve
 ```
 npm run build
 ```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
