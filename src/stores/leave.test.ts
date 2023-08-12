@@ -57,17 +57,13 @@ describe('Leave store', () => {
 
     test('Calculate number of days off fully paid for mom', () => {
         const store= useLeaveStore()
-        store.setWeeks(getWeeksForPreset(store.presets[0]))
+        store.setDaysOff(true, Array(25).fill(true))
         expect(store.daysOffAtMaxUwv(true)).toBe(25)
     })
 
     test('Calculate days off when taking the entire year off for mom', () => {
         const store= useLeaveStore()
-        const weeks = Array(52).fill(null).map(() => ({
-            daysOffMom: 5,
-            daysOffSecondParent: 0
-        }))
-        store.setWeeks(weeks)
+        store.setDaysOff(true, Array(260).fill(true))
         expect(store.daysUsedByRegulation('delivery', true)).toBe(60)
         expect(store.daysUsedByRegulation('birth', true)).toBe(0)
         expect(store.daysUsedByRegulation('additionalBirth', true)).toBe(0)
@@ -81,11 +77,7 @@ describe('Leave store', () => {
 
     test('Calculate missed income when taking the entire year off for mom', () => {
         const store= useLeaveStore()
-        const weeks = Array(52).fill(null).map(() => ({
-            daysOffMom: 5,
-            daysOffSecondParent: 0
-        }))
-        store.setWeeks(weeks)
+        store.setDaysOff(true, Array(260).fill(true))
         store.setGrossYearlySalary(100_000, true)
         const daily = store.dailySalary(true)!!
         const missedAtMaxUwv = daily - uwvMaximumDagloon

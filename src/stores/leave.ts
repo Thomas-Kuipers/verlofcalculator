@@ -30,21 +30,31 @@ export interface Preset {
 	secondParent: number[]
 }
 
+export enum CalendarBrushes {
+	mom,
+	partner,
+	eraser
+}
+
 interface Leave {
 	personal: {
 		dueDate: Date | null
 		daysPerWeek: number | null
 		grossYearlySalaryMom: number | null
 		grossYearlySalarySecondParent: number | null
-		normalHoursPerWeekMom: number
-		normalHoursPerWeekSecondParent: number
+		workDaysMom: number[]
+		workDaysPartner: number[]
 	}
 	facts: {
 		maxDaySalary: number
 	}
 	regulations: Regulation[]
-	weeks: Week[]
+	// Array of working days (monday to friday), true is day off, false is working day
+	daysOffMom: boolean[]
+	daysOffPartner: boolean[]
+	// weeks: Week[]
 	hasDragged: boolean
+	activeBrush: CalendarBrushes
 }
 
 const defaultRegulations: Regulation[] = [
@@ -134,29 +144,63 @@ export const useLeaveStore = defineStore('leave', {
 			daysPerWeek: null,
 			grossYearlySalaryMom: null,
 			grossYearlySalarySecondParent: null,
-			normalHoursPerWeekMom: 40,
-			normalHoursPerWeekSecondParent: 40
+			workDaysMom: [1, 2, 3, 4, 5],
+			workDaysPartner: [1, 2, 3, 4, 5],
 		},
 		facts: {
 			maxDaySalary: 256,
 		},
 		regulations: defaultRegulations,
-		weeks: [], // getWeeksForPreset(defaultPresets[0]),
+		daysOffMom: Array(25).fill(true).concat(Array(245).fill(false)),
+		daysOffPartner: Array(5).fill(true).concat(Array(265).fill(false)),
+		// weeks: [], // getWeeksForPreset(defaultPresets[0]),
 		hasDragged: false,
+		activeBrush: CalendarBrushes.mom,
 	}),
 	getters: {
+		isDayOff(state): (mom: boolean, date: Date) => boolean {
+			return (mom, date) => {
+				if (!state.personal.dueDate) {
+					return false
+				}
+
+				if (date.getTime() < state.personal.dueDate.getTime()) {
+					return false
+				}
+
+				const dayOfWeek = date.getDay()
+
+				if (dayOfWeek === 0 || dayOfWeek === 6) {
+					return false
+				}
+
+				if (mom && !state.personal.workDaysMom.includes(dayOfWeek)) {
+					return true
+				}
+
+				if (!mom && !state.personal.workDaysPartner.includes(dayOfWeek)) {
+					return true
+				}
+
+				const daysOff = mom ? state.daysOffMom : state.daysOffPartner
+				const workdays = (mom ? state.personal.workDaysMom : state.personal.workDaysPartner).length
+				const businessDaysInBetween = calculateBusinessDays(state.personal.dueDate, date, workdays) - 2
+
+				return daysOff[businessDaysInBetween]
+			}
+		},
 		totalDaysUsed(state): (mom: boolean) => number {
-			return (mom: boolean) => state.weeks.reduce((total: number, week) =>
-					total + (mom ? week.daysOffMom : week.daysOffSecondParent),
-				0
-			)
+			return (mom: boolean) =>
+				(mom ? state.daysOffMom : state.daysOffPartner)
+				.filter(dayOff => dayOff).length
 		},
-		daysPerWeek(state): (mom: boolean) => number[] {
-			return (mom: boolean) => state.weeks.reduce((total: number[], week) =>
-					total.concat(mom ? week.daysOffMom : week.daysOffSecondParent),
-				[]
-			)
-		},
+		// Only used in Analysis.vue
+		// daysPerWeek(state): (mom: boolean) => number[] {
+		// 	return (mom: boolean) => state.weeks.reduce((total: number[], week) =>
+		// 			total.concat(mom ? week.daysOffMom : week.daysOffSecondParent),
+		// 		[]
+		// 	)
+		// },
 		daysUsedForAllRegulations(state): DaysUsedForAllRegulations {
 			const result: DaysUsedForAllRegulations = {}
 			const calculate = (regulationId: string, mom: boolean): number => {
@@ -172,15 +216,13 @@ export const useLeaveStore = defineStore('leave', {
 					return 0
 				}
 
-				const totalDaysUsed: number = state.weeks.reduce((total: number, week: Week) =>
-						total + (mom ? week.daysOffMom : week.daysOffSecondParent)
-					, 0)
+				const totalDaysUsed: number = this.totalDaysUsed(mom)
 
 				const relevantRegulations = state.regulations.filter(regulation =>
 					mom ? regulation.mom : regulation.secondParent
 				)
 
-				const normalHoursPerWeek = mom ? state.personal.normalHoursPerWeekMom : state.personal.normalHoursPerWeekSecondParent
+				const normalHoursPerWeek = (mom ? state.personal.workDaysMom : state.personal.workDaysPartner).length * 8
 				let daysUsedByOtherRegulations = 0
 				let currentIndex: number = 0
 				while (relevantRegulations[currentIndex] && relevantRegulations[currentIndex].id !== regulationId) {
@@ -300,7 +342,7 @@ export const useLeaveStore = defineStore('leave', {
 					return null
 				}
 
-				const hoursPerWeek = mom ? state.personal.normalHoursPerWeekMom : state.personal.normalHoursPerWeekSecondParent
+				const hoursPerWeek = (mom ? state.personal.workDaysMom : state.personal.workDaysPartner).length * 8
 
 				return (40 / hoursPerWeek) * (yearly / officalAverageWorkingDaysPerYear)
 			}
@@ -377,7 +419,7 @@ export const useLeaveStore = defineStore('leave', {
 		},
 		totalFlexibleDays(state): (mom: boolean) => number {
 			return (mom: boolean) => {
-				const normalHoursPerWeek = mom ? state.personal.normalHoursPerWeekMom : state.personal.normalHoursPerWeekSecondParent
+				const normalHoursPerWeek = (mom ? state.personal.workDaysMom : state.personal.workDaysPartner).length * 8
 
 				return defaultRegulations
 						.filter(regulation => mom ? regulation.mom : regulation.secondParent)
@@ -387,8 +429,7 @@ export const useLeaveStore = defineStore('leave', {
 		},
 		normalDaysPerWeek(state): (mom: boolean) => number {
 			return (mom: boolean) => {
-				const hours = mom ? state.personal.normalHoursPerWeekMom : state.personal.normalHoursPerWeekSecondParent
-				return hours / 8
+				return (mom ? state.personal.workDaysMom : state.personal.workDaysPartner).length
 			}
 		},
 		presets(state): Preset[] {
@@ -452,7 +493,7 @@ export const useLeaveStore = defineStore('leave', {
 					mom ? regulation.mom : regulation.secondParent
 				)
 
-				const normalHoursPerWeek = mom ? state.personal.normalHoursPerWeekMom : state.personal.normalHoursPerWeekSecondParent
+				const normalHoursPerWeek = this.normalDaysPerWeek(mom) * 8
 
 				return regulations.reduce((combined: number[], regulation) => {
 					regulation.fixedDaysOff(normalHoursPerWeek).forEach((fixed, i) => {
@@ -481,34 +522,47 @@ export const useLeaveStore = defineStore('leave', {
 			}
 		},
 
-		childCareDaysPerWeek(state): (week: Week) => number {
-			return (week: Week) => {
-				const freeWeekDaysMom = (40 - state.personal.normalHoursPerWeekMom) / 8
-				const freeWeekDaysSecondParent = (40 - state.personal.normalHoursPerWeekSecondParent) / 8
+		// childCareDaysPerWeek(state): (week: Week) => number {
+		// 	return (week: Week) => {
+		// 		const freeWeekDaysMom = (40 - state.personal.normalHoursPerWeekMom) / 8
+		// 		const freeWeekDaysSecondParent = (40 - state.personal.normalHoursPerWeekSecondParent) / 8
+		//
+		// 		return Math.max(0,
+		// 			5
+		// 			- week.daysOffMom
+		// 			- week.daysOffSecondParent
+		// 			- freeWeekDaysMom
+		// 			- freeWeekDaysSecondParent
+		// 		)
+		// 	}
+		// },
 
-				return Math.max(0,
-					5
-					- week.daysOffMom
-					- week.daysOffSecondParent
-					- freeWeekDaysMom
-					- freeWeekDaysSecondParent
-				)
-			}
-		},
-
-		totalChildcareDays(state): number {
-			return state.weeks.reduce(
-				(total, week) => total + this.childCareDaysPerWeek(week)
-				, 0
-			)
-		}
+		// Needs to totally change: calculate the weeks based on the due date
+		// totalChildcareDays(state): number {
+		// 	return state.weeks.reduce(
+		// 		(total, week) => total + this.childCareDaysPerWeek(week)
+		// 		, 0
+		// 	)
+		// }
 	},
 	actions: {
-		setDays(weekNumber: number, days: number, mom: boolean) {
+		setDay(date: Date, off: boolean, mom: boolean) {
+			if (!this.personal.dueDate) {
+				return
+			}
+
+			if (date.getDay() === 6 || date.getDay() === 0) {
+				return
+			}
+
+			const workdays = (mom ? this.personal.workDaysMom : this.personal.workDaysPartner).length
+			const businessDays = calculateBusinessDays(this.personal.dueDate, date, workdays)
+			const index = businessDays - 2
+
 			if (mom) {
-				this.weeks[weekNumber - 1].daysOffMom = days
+				this.daysOffMom[index] = off
 			} else {
-				this.weeks[weekNumber - 1].daysOffSecondParent = days
+				this.daysOffPartner[index] = off
 			}
 		},
 		setGrossYearlySalary(salary: number | null, mom: boolean) {
@@ -522,15 +576,13 @@ export const useLeaveStore = defineStore('leave', {
 				this.personal.grossYearlySalarySecondParent = salary
 			}
 		},
-		setNormalHoursPerWeek(hoursPerWeek: number, mom: boolean) {
-			if ((hoursPerWeek < 1) || isNaN(hoursPerWeek)) {
-				return
-			}
-
+		setWorkDays(mom: boolean, workDays: number[]) {
 			if (mom) {
-				this.personal.normalHoursPerWeekMom = hoursPerWeek
+				console.log(workDays)
+
+				this.personal.workDaysMom = workDays
 			} else {
-				this.personal.normalHoursPerWeekSecondParent = hoursPerWeek
+				this.personal.workDaysPartner = workDays
 			}
 		},
 		setDueDate(dueDate: Date) {
@@ -539,8 +591,15 @@ export const useLeaveStore = defineStore('leave', {
 		setDragged() {
 			this.hasDragged = true
 		},
-		setWeeks(weeks: Week[]) {
-			this.weeks = weeks
+		setDaysOff(mom: boolean, daysOff: boolean[]) {
+			if (mom) {
+				this.daysOffMom = daysOff
+			} else {
+				this.daysOffPartner = daysOff
+			}
+		},
+		setActiveBrush(brush: CalendarBrushes) {
+			this.activeBrush = brush
 		}
 	}
 })
@@ -615,4 +674,43 @@ export function getWeeksForPreset(preset: Preset): Week[] {
 		daysOffMom: preset.mom[i] || 0,
 		daysOffSecondParent: preset.secondParent[i] || 0
 	}))
+}
+
+function calculateBusinessDays(startDate: Date, endDate: Date, workdaysPerWeek: number){
+// Validate input
+	if (endDate < startDate)
+		return 0;
+
+// Calculate days between dates
+	var millisecondsPerDay = 86400 * 1000; // Day in milliseconds
+	startDate.setHours(0,0,0,1);  // Start just after midnight
+	endDate.setHours(23,59,59,999);  // End just before midnight
+	var diff = endDate.getTime() - startDate.getTime();  // Milliseconds between datetime objects
+	var days = Math.ceil(diff / millisecondsPerDay);
+
+	const daysPerWeekThatDontCount = 2 /*weekend*/ + 5 - workdaysPerWeek
+
+// Subtract two weekend days for every week in between
+	var weeks = Math.floor(days / 7);
+	days = days - (weeks * daysPerWeekThatDontCount);
+
+// Handle special cases
+	var startDay = startDate.getDay();
+	var endDay = endDate.getDay();
+
+// Remove weekend not previously removed.
+	if (startDay - endDay > 1)
+		days = days - daysPerWeekThatDontCount;
+
+// Remove start day if span starts on Sunday but ends before Saturday
+	if (startDay == 0 && endDay != 6) {
+		days = days - 1;
+	}
+
+// Remove end day if span ends on Saturday but starts after Sunday
+	if (endDay == 6 && startDay != 0) {
+		days = days - 1;
+	}
+
+	return days;
 }
