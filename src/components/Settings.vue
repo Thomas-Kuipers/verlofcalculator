@@ -2,6 +2,7 @@
 import TextContent from '@/components/TextContent.vue'
 import { useLeaveStore } from '@/stores/leave'
 import { translate } from '@/helpers/translate'
+import WorkdaySelector from '@/components/WorkdaySelector.vue'
 
 const leaveStore = useLeaveStore()
 const { t } = translate()
@@ -14,21 +15,25 @@ const { t } = translate()
         </TextContent>
         <ul :class="$style.list">
             <li :class="$style.item">
+                <label :class="$style.label">{{ t('settingsWorkDaysMom') }}</label>
+                <WorkdaySelector
+                    :active="leaveStore.personal.workDaysMom"
+                    @change="days => leaveStore.setWorkDays(true, days)"
+                />
+            </li>
+            <li :class="$style.item">
+                <label :class="$style.label">{{ t('settingsWorkDaysPartner') }}</label>
+                <WorkdaySelector
+                    :active="leaveStore.personal.workDaysPartner"
+                    @change="days => leaveStore.setWorkDays(false, days)"
+                />
+            </li>
+            <li :class="$style.item">
                 <label :class="$style.label">{{ t('settingsGrossYearlySalaryMom') }}</label>
                 <input
                     :class="$style.salaryInput"
                     type="number"
                     @keyup="event => leaveStore.setGrossYearlySalary(parseInt(event.currentTarget.value), true)"
-                />
-            </li>
-            <li :class="$style.item">
-                <label :class="$style.label">{{ t('hoursPerWeekMom') }}</label>
-                <input
-                    :value="leaveStore.personal.normalHoursPerWeekMom"
-                    :class="$style.salaryInput"
-                    type="number"
-                    @change="event => leaveStore.setNormalHoursPerWeek(parseInt(event.currentTarget.value), true)"
-                    @keyup="event => leaveStore.setNormalHoursPerWeek(parseInt(event.currentTarget.value), true)"
                 />
             </li>
             <li :class="$style.item">
@@ -46,16 +51,6 @@ const { t } = translate()
                     @keyup="event => leaveStore.setGrossYearlySalary(parseInt(event.currentTarget.value), false)"
                 />
             </li>
-            <li :class="$style.item">
-                <label :class="$style.label">{{ t('hoursPerWeekSecondParent') }}</label>
-                <input
-                    :value="leaveStore.personal.normalHoursPerWeekSecondParent"
-                    :class="$style.salaryInput"
-                    type="number"
-                    @change="event => leaveStore.setNormalHoursPerWeek(parseInt(event.currentTarget.value), false)"
-                    @keyup="event => leaveStore.setNormalHoursPerWeek(parseInt(event.currentTarget.value), false)"
-                />
-            </li>
         </ul>
 
     </div>
@@ -69,7 +64,7 @@ const { t } = translate()
 
 .list {
     display: inline-grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: auto auto;
 }
 
 .item {

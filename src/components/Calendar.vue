@@ -1,23 +1,104 @@
 <script lang="ts" setup>
-import { getWeeksForPreset, Preset, useLeaveStore } from '@/stores/leave'
-import Week from '@/components/Week.vue'
+import { CalendarBrushes, Preset, useLeaveStore } from '@/stores/leave'
 import { translate } from '@/helpers/translate'
 import TextContent from '@/components/TextContent.vue'
-import { watchEffect } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 
 const leaveStore = useLeaveStore()
 const { t } = translate()
 
-function activate(preset: Preset) {
-    leaveStore.weeks.forEach((week, i) => {
-        leaveStore.setDays(i + 1, preset.mom[i] || 0, true)
-        leaveStore.setDays(i + 1, preset.secondParent[i] || 0, false)
-    })
+interface Column {
+    date: Date
+    visible: boolean
 }
 
-watchEffect(() => {
-    leaveStore.setWeeks(getWeeksForPreset(leaveStore.presets[0]))
+const months = computed<Column[][][]>(() => {
+    if (!leaveStore.personal.dueDate) {
+        return []
+    }
+
+    const months = []
+    for (let iMonth = 0; iMonth < 12; iMonth ++) {
+        const currentMonth = leaveStore.personal.dueDate.getMonth() + iMonth
+        const firstDayOfMonth = new Date(leaveStore.personal.dueDate.getFullYear(), currentMonth, 1)
+        const prevMonday = new Date(firstDayOfMonth.getTime())
+        prevMonday.setDate(prevMonday.getDate() - (prevMonday.getDay() + 6) % 7)
+
+        let i = 0
+        const weeks = []
+
+        weekLoop:
+        for (let iWeek = 0; iWeek < 6; iWeek ++) {
+            const days = []
+
+            for (let iDay = 0; iDay < 7; iDay ++) {
+                const date = new Date(prevMonday.getTime())
+                date.setDate(date.getDate() + i)
+                i ++
+
+                days.push({
+                    date: date,
+                    visible: date.getMonth() == firstDayOfMonth.getMonth(),
+                })
+            }
+
+            weeks.push(days)
+
+            const lastDay = days[days.length - 1]
+            const nextDay = new Date(lastDay.date.getTime())
+            nextDay.setDate(lastDay.date.getDate() + 1)
+
+            if (nextDay.getMonth() !== firstDayOfMonth.getMonth()) {
+                break weekLoop
+            }
+        }
+
+        months.push(weeks)
+    }
+
+    return months
 })
+
+const isMouseDown = ref<boolean>(false)
+
+function onMouseDown() {
+    isMouseDown.value = true
+}
+
+function onMouseUp() {
+    isMouseDown.value = false
+}
+
+onMounted(() => {
+    window.addEventListener('mousedown', onMouseDown)
+    window.addEventListener('mouseup', onMouseUp)
+})
+
+onUnmounted(() => {
+    window.removeEventListener('mousedown', onMouseDown)
+    window.removeEventListener('mouseup', onMouseUp)
+})
+
+function changeDay(date: Date) {
+    if (leaveStore.activeBrush === CalendarBrushes.eraser) {
+        leaveStore.setDay(date, false, true)
+        leaveStore.setDay(date, false, false)
+    } else if (leaveStore.activeBrush === CalendarBrushes.mom) {
+        leaveStore.setDay(date, true, true)
+    } else if (leaveStore.activeBrush === CalendarBrushes.partner) {
+        leaveStore.setDay(date, true, false)
+    }
+}
+
+function onClick(date: Date) {
+    changeDay(date)
+}
+
+function onMouseEnter(date: Date) {
+    if (isMouseDown.value) {
+        changeDay(date)
+    }
+}
 </script>
 
 <template>
@@ -25,34 +106,85 @@ watchEffect(() => {
         <TextContent>
             <h2>{{ t('calendarTitle') }}</h2>
         </TextContent>
-        <div :class="$style.presets">
-            <p>{{ t('examplesTitle') }}:</p>
-            <button
-                :class="$style.preset"
-                @click="() => activate(preset)"
-                v-for="preset in leaveStore.presets">
-                {{ t(preset.title) }}
-            </button>
-        </div>
 
-        <table :class="$style.table">
-            <thead>
-            <tr>
-                <th>{{ t('calendarThWeek') }}</th>
-                <th>{{ t('calendarThDate') }}</th>
-                <th>{{ t('calendarThDaysOffMom') }}</th>
-                <th>{{ t('calendarThDaysOffPartner') }}</th>
-                <th>{{ t('calendarThDaysChildcare') }}</th>
-            </tr>
-            </thead>
-            <tbody>
-            <Week
-                v-for="(week, i) in leaveStore.weeks"
-                :week="week"
-                :n="i + 1"
-            />
-            </tbody>
-        </table>
+        <p v-if="!leaveStore.personal.dueDate">First fill in your due date before you can use the calendar.</p>
+        <template v-else>
+            <p>
+                <span :class="$style.brushIcon">🖌</span> Select a brush to draw on the calendar
+            </p>
+            <ul :class="$style.brushes">
+                <li @click="() => leaveStore.setActiveBrush(CalendarBrushes.mom)" :class="{
+                [$style.brush]: true,
+                [$style.brushMom]: true,
+                [$style.brushActive]: leaveStore.activeBrush === CalendarBrushes.mom
+            }">Mom</li>
+                <li @click="() => leaveStore.setActiveBrush(CalendarBrushes.partner)" :class="{
+                [$style.brush]: true,
+                [$style.brushPartner]: true,
+                [$style.brushActive]: leaveStore.activeBrush === CalendarBrushes.partner
+            }">Partner</li>
+                <li @click="() => leaveStore.setActiveBrush(CalendarBrushes.eraser)" :class="{
+                [$style.brush]: true,
+                [$style.brushEraser]: true,
+                [$style.brushActive]: leaveStore.activeBrush === CalendarBrushes.eraser
+            }">Eraser</li>
+            </ul>
+            <table :class="{
+            [$style.table]: true,
+            [$style.tableWithMomBrush]: leaveStore.activeBrush === CalendarBrushes.mom,
+            [$style.tableWithPartnerBrush]: leaveStore.activeBrush === CalendarBrushes.partner,
+            [$style.tableWithEraserBrush]: leaveStore.activeBrush === CalendarBrushes.eraser,
+        }">
+                <template v-for="month in months">
+                    <thead>
+                    <tr>
+                        <th colspan="6" :class="$style.monthHeader">
+                            {{ month[2][0].date.toLocaleString('default', { month: 'long' }) }}
+                        </th>
+                    </tr>
+                    <tr>
+                        <th>Mon</th>
+                        <th>Tue</th>
+                        <th>Wed</th>
+                        <th>Thu</th>
+                        <th>Fri</th>
+                        <th :class="$style.weekend">Sat</th>
+                        <th :class="$style.weekend">Sun</th>
+                    </tr>
+                    </thead>
+                    <tr v-for="week in month">
+                        <td v-for="day in week"
+                            @mouseenter="() => onMouseEnter(day.date)"
+                            @mousedown="() => onClick(day.date)"
+                            :class="{[$style.dayColumn]: true, [$style.weekend]: day.date.getDay() === 6 || day.date.getDay() === 0}">
+                        <span
+                            :class="{
+                                [$style.day]: true,
+                                [$style.dayOffMom]: leaveStore.isDayOff(true, day.date),
+                            }"
+                            v-if="day.visible">
+                            <span :class="$style.dueDate" v-if="day.date.getDate() === leaveStore.personal.dueDate!!.getDate() && day.date.getMonth() === leaveStore.personal.dueDate!!.getMonth()">
+                                🥳
+                            </span>
+                            <span v-else>
+                                {{ day.date.getDate() }}
+                            </span>
+                            <span
+                                :class="$style.dayOffPartner"
+                                v-if="leaveStore.isDayOff(false, day.date)"
+                            />
+                        </span>
+                        </td>
+                    </tr>
+                </template>
+                <thead>
+                <tr>
+                </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </template>
     </div>
 </template>
 
@@ -75,15 +207,116 @@ watchEffect(() => {
     border-radius: 5px;
 }
 
+.weekend {
+    opacity: .3;
+}
+
 .table {
-    th {
+    user-select: none;
+
+    .monthHeader {
+        text-align: center;
+        padding: 30px 0 10px;
+        font-size: 18px;
         font-weight: bold;
+    }
+
+    th {
         white-space: nowrap;
     }
 
     td,
     th {
-        padding: 1px 16px 1px 0;
+        padding: 10px;
+        text-align: center;
     }
+}
+
+.day {
+    //border-radius: 100%;
+    display: inline-block;
+    width: 29px;
+    height: 29px;
+    text-align: center;
+    line-height: 25px;
+    position: relative;
+}
+
+.dayOffMom {
+    border-bottom: 4px solid deeppink;
+}
+
+.dayOffPartner {
+    //border-radius: 100%;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    border-bottom: 4px solid dodgerblue;
+    position: absolute;
+    top: -1px;
+    left: 0;
+}
+
+.dueDate {
+    font-size: 30px;
+    position: relative;
+    display: inline-block;
+    transform: translateY(7px);
+}
+
+.brushIcon {
+    font-size: 25px;
+    display: inline-block;
+    transform: translateY(5px);
+}
+
+.brushes {
+    display: flex;
+    margin: 10px 0;
+}
+
+.brush {
+    margin-right: 10px;
+    padding: 5px 10px;
+    border-radius: 30px;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.brushMom {
+    color: white;
+    background: deeppink;
+}
+
+.brushPartner {
+    color: white;
+    background: dodgerblue;
+}
+
+.brushEraser {
+    border-color: #cccccc;
+}
+
+.brushActive {
+    box-shadow: 2px 2px 10px 4px rgba(0,0,0,0.2);
+}
+
+.dayColumn {
+    &:hover {
+        background: #eee;
+        border-radius: 50%;
+    }
+}
+
+.tableWithMomBrush {
+    cursor: url(~@/assets/icons/circle-pink.svg), auto;
+}
+
+.tableWithPartnerBrush {
+    cursor: url(~@/assets/icons/circle-blue.svg), auto;
+}
+
+.tableWithEraserBrush {
+    cursor: url(~@/assets/icons/circle-eraser.svg), auto;
 }
 </style>

@@ -65,14 +65,14 @@ const salarySecondParent = computed(() => {
 
 <template>
     <RowWithInfo :title="t(regulation.title)">
-        <td :class="{[$style.days]: true, [$style.maxed]: leaveStore.daysUsedByRegulation(regulation.id, true) === regulation.daysOff }" v-if="regulation.mom">
+        <td :class="{[$style.days]: true, [$style.maxed]: leaveStore.daysUsedByRegulation(regulation.id, true) === regulation.daysOff(leaveStore.personal.workDaysMom.length * 8) }" v-if="regulation.mom">
             <Days :value="leaveStore.daysUsedByRegulation(regulation.id, true)" /> /
-            <Days :value="regulation.daysOff(leaveStore.personal.normalHoursPerWeekMom)" />
+            <Days :value="regulation.daysOff(leaveStore.personal.workDaysMom.length * 8)" />
         </td>
         <td v-if="!regulation.mom" :class="$style.na">N/A</td>
-        <td :class="{[$style.days]: true, [$style.maxed]: leaveStore.daysUsedByRegulation(regulation.id, false) === regulation.daysOff }" v-if="regulation.secondParent">
+        <td :class="{[$style.days]: true, [$style.maxed]: leaveStore.daysUsedByRegulation(regulation.id, false) === regulation.daysOff(leaveStore.personal.workDaysPartner.length * 8) }" v-if="regulation.secondParent">
             <Days :value="leaveStore.daysUsedByRegulation(regulation.id, false)" /> /
-            <Days :value="regulation.daysOff(leaveStore.personal.normalHoursPerWeekSecondParent)" />
+            <Days :value="regulation.daysOff(leaveStore.personal.workDaysPartner.length * 8)" />
         </td>
         <td v-if="!regulation.secondParent" :class="$style.na">N/A</td>
 

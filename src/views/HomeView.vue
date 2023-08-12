@@ -39,7 +39,7 @@ const { t } = translate()
                     </tr>
                     <FinancialMonthly />
                 </table>
-                <Analysis />
+<!--                <Analysis />-->
                 <TextContent :class="$style.about">
                     <div v-html="t('feedbackHtml')" />
                 </TextContent>

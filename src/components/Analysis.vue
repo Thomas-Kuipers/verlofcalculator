@@ -58,11 +58,11 @@ const weeksSecondParentSentence = computed<string>(() => {
 	return weeksSentence(false)
 })
 
-const childcareSentence = computed<string>(() => {
-    return t('analysisChildcare', {
-        days: leaveStore.totalChildcareDays
-    })
-})
+// const childcareSentence = computed<string>(() => {
+//     return t('analysisChildcare', {
+//         days: leaveStore.totalChildcareDays
+//     })
+// })
 
 </script>
 
@@ -74,7 +74,7 @@ const childcareSentence = computed<string>(() => {
                 <li>{{ dayCountSentence }}</li>
                 <li>{{ weeksMomSentence }}</li>
                 <li>{{ weeksSecondParentSentence }}</li>
-                <li>{{ childcareSentence }}</li>
+<!--                <li>{{ childcareSentence }}</li>-->
             </ul>
         </TextContent>
 	</div>
