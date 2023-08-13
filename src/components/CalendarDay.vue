@@ -12,16 +12,17 @@ const leaveStore = useLeaveStore()
 
 const dayTypeMom = computed(() => leaveStore.isDayOff(true, props.date))
 const dayTypePartner = computed(() => leaveStore.isDayOff(false, props.date))
+const isDueDate = computed(() => props.date.getDate() === leaveStore.personal.dueDate!!.getDate() && props.date.getMonth() === leaveStore.personal.dueDate!!.getMonth())
 
 </script>
 <template>
     <span
         :class="{
             [$style.day]: true,
-            [$style.dayOffMom]: dayTypeMom === DayTypes.ParentalLeave || dayTypeMom === DayTypes.PartTimer,
+            [$style.dayOffMom]: (dayTypeMom === DayTypes.ParentalLeave || dayTypeMom === DayTypes.PartTimer) && !isDueDate,
         }"
         v-if="visible">
-        <span :class="$style.dueDate" v-if="date.getDate() === leaveStore.personal.dueDate!!.getDate() && date.getMonth() === leaveStore.personal.dueDate!!.getMonth()">
+        <span :class="$style.dueDate" v-if="isDueDate">
             🥳
         </span>
         <span v-else :class="{[$style.weekend]: date.getDay() === 6 || date.getDay() === 0}">

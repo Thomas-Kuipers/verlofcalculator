@@ -19,27 +19,7 @@ const yearMonthRegulationsMom = computed(() => leaveStore.yearMonthRegulations(t
 const yearMonthRegulationsPartner = computed(() => leaveStore.yearMonthRegulations(false))
 const yearMonthIncomeMom = computed(() => leaveStore.yearMonthIncome(true))
 const yearMonthIncomePartner = computed(() => leaveStore.yearMonthIncome(false))
-
-const yearMonths = computed(() => {
-    if (leaveStore.personal.dueDate === null) {
-        return []
-    }
-
-    const date = new Date(leaveStore.personal.dueDate.valueOf())
-    const result: YearMonth[] = []
-
-    for (let i = 0; i < 12; i ++) {
-        const yearMonth = {
-           year: date.getFullYear(),
-           month: date.getMonth()
-        }
-
-        date.setMonth(date.getMonth() + 1)
-        result.push(yearMonth)
-    }
-
-    return result
-})
+const yearMonths = computed(() => leaveStore.yearMonths || [])
 </script>
 
 <template>

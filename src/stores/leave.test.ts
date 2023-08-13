@@ -65,21 +65,22 @@ describe('Leave store', () => {
     test('Calculate number of days off fully paid for mom', () => {
         const store= useLeaveStore()
         store.setDaysOff(true, Array(25).fill(true))
-        expect(store.daysOffAtMaxUwv(true)).toBe(25)
+        expect(store.daysOffAtMaxUwv(true)).toBe(45)
     })
 
     test('Calculate days off when taking the entire year off for mom', () => {
         const store= useLeaveStore()
         store.setDaysOff(true, Array(260).fill(true))
+        expect(store.daysUsedByRegulation('pregnancy', true)).toBe(20)
         expect(store.daysUsedByRegulation('delivery', true)).toBe(60)
         expect(store.daysUsedByRegulation('birth', true)).toBe(0)
         expect(store.daysUsedByRegulation('additionalBirth', true)).toBe(0)
         expect(store.daysUsedByRegulation('paidParental', true)).toBe(45)
         expect(store.daysUsedByRegulation('unpaidParental', true)).toBe(85)
-        expect(store.daysOffAtMaxUwv(true)).toBe(60)
+        expect(store.daysOffAtMaxUwv(true)).toBe(80)
         expect(store.daysOffAt70Percent(true)).toBe(45)
         expect(store.daysOffUnpaid(true)).toBe(85)
-        expect(store.totalDaysUsed(true)).toBe(5 * 52)
+        expect(store.totalDaysUsed(true)).toBe(5 * 52 + 20)
     })
 
     test('Calculate days off when taking the entire year off for partner', () => {
@@ -124,6 +125,13 @@ describe('Leave store', () => {
             + daily * store.daysOffUnpaid(true)
 
         expect(store.totalMissedIncome(true)).toBe(totalMissed)
+    })
+
+    test('Number of days on pregnancy leave for mom in december 2023', () => {
+        const store= useLeaveStore()
+        store.setDueDate(new Date(2023, 0, 1))
+
+        expect(store.yearMonthLeaveDays(true)!!['2022-11']).toBe(20)
     })
 
     test('Number of days on leave for mom in january 2023', () => {
@@ -341,5 +349,14 @@ describe('Leave store', () => {
         expect(store.isDayOff(false, tuesdayNextWeek)).toBe(DayTypes.Working)
     })
 
-    // To do: test for due date on the weekend
+    test('Pregnancy leave', () => {
+        const store= useLeaveStore()
+        store.setDueDate(new Date(2023, 0, 31))
+        expect(store.isDayOff(true, new Date(2023, 0, 30))).toBe(DayTypes.ParentalLeave)
+        expect(store.isDayOff(true, new Date(2023, 0, 23))).toBe(DayTypes.ParentalLeave)
+        expect(store.isDayOff(true, new Date(2023, 0, 16))).toBe(DayTypes.ParentalLeave)
+        expect(store.isDayOff(true, new Date(2023, 0, 9))).toBe(DayTypes.ParentalLeave)
+        expect(store.isDayOff(true, new Date(2023, 0, 3))).toBe(DayTypes.ParentalLeave)
+        expect(store.isDayOff(true, new Date(2023, 0, 2))).toBe(DayTypes.Working)
+    })
 })

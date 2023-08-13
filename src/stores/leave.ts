@@ -20,6 +20,7 @@ export interface Regulation {
 	title: keyof MessageSchema
 	daysOff: (normalHoursPerWeek: number) => number
 	fixedDaysOff: (normalHoursPerWeek: number) => number[]
+	beforeDueDate: boolean
 	mom: boolean
 	secondParent: boolean
 	percentageOfSalary: number
@@ -51,6 +52,7 @@ interface Leave {
 	regulations: Regulation[]
 	// Array of working days (monday to friday), true is day off, false is working day
 	daysOffMom: boolean[]
+	daysOffMomBeforeDueDate: number
 	daysOffPartner: boolean[]
 	// weeks: Week[]
 	hasDragged: boolean
@@ -59,10 +61,26 @@ interface Leave {
 
 const defaultRegulations: Regulation[] = [
 	{
+		id: 'pregnancy',
+		title: 'regulationPregnancyTitle',
+		daysOff: normalHoursPerWeek => 4 * normalHoursPerWeek / 8,
+		fixedDaysOff: normalHoursPerWeek => [],
+		beforeDueDate: true,
+		mom: true,
+		secondParent: false,
+		percentageOfSalary: 100,
+		dailySalaryMax: uwvMaximumDagloon,
+		info: 'regulationPregnancyInfoHtml',
+		infoList: 'regulationDeliveryInfoHtml',
+		infoLink: 'regulationDeliveryInfoLinkHtml',
+		url: 'https://www.rijksoverheid.nl/onderwerpen/zwangerschapsverlof-en-bevallingsverlof/vraag-en-antwoord/zwangerschapsverlof-en-bevallingsverlof-berekenen'
+	},
+	{
 		id: 'delivery',
 		title: 'regulationDeliveryTitle',
 		daysOff: normalHoursPerWeek => 12 * normalHoursPerWeek / 8,
 		fixedDaysOff: normalHoursPerWeek => Array(5).fill(normalHoursPerWeek / 8),
+		beforeDueDate: false,
 		mom: true,
 		secondParent: false,
 		percentageOfSalary: 100,
@@ -77,6 +95,7 @@ const defaultRegulations: Regulation[] = [
 		title: 'regulationBirthTitle',
 		daysOff: normalHoursPerWeek => normalHoursPerWeek / 8,
 		fixedDaysOff: normalHoursPerWeek => [normalHoursPerWeek / 8],
+		beforeDueDate: false,
 		mom: false,
 		secondParent: true,
 		percentageOfSalary: 100,
@@ -91,6 +110,7 @@ const defaultRegulations: Regulation[] = [
 		title: 'regulationAdditionalBirthTitle',
 		daysOff: normalHoursPerWeek => 5 * normalHoursPerWeek / 8,
 		fixedDaysOff: normalHoursPerWeek => [],
+		beforeDueDate: false,
 		mom: false,
 		secondParent: true,
 		percentageOfSalary: 70,
@@ -105,6 +125,7 @@ const defaultRegulations: Regulation[] = [
 		title: 'regulationPaidParentalTitle',
 		daysOff: normalHoursPerWeek => 9 * normalHoursPerWeek / 8,
 		fixedDaysOff: normalHoursPerWeek => [],
+		beforeDueDate: false,
 		mom: true,
 		secondParent: true,
 		percentageOfSalary: 70,
@@ -119,6 +140,7 @@ const defaultRegulations: Regulation[] = [
 		title: 'regulationUnpaidParentalTitle',
 		daysOff: normalHoursPerWeek => 17 * normalHoursPerWeek / 8,
 		fixedDaysOff: normalHoursPerWeek => [],
+		beforeDueDate: false,
 		mom: true,
 		secondParent: true,
 		percentageOfSalary: 0,
@@ -182,6 +204,7 @@ export const useLeaveStore = defineStore('leave', {
 		},
 		regulations: defaultRegulations,
 		daysOffMom: Array(25).fill(true).concat(Array(245).fill(false)),
+		daysOffMomBeforeDueDate: 20,
 		daysOffPartner: Array(5).fill(true).concat(Array(265).fill(false)),
 		hasDragged: false,
 		activeBrush: CalendarBrushes.mom,
@@ -199,11 +222,6 @@ export const useLeaveStore = defineStore('leave', {
 					return null
 				}
 
-				if (date.getTime() < state.personal.dueDate.getTime()) {
-					// To do: not correct for mom, she's on pregnancy leave
-					return DayTypes.Working
-				}
-
 				const dayOfWeek = date.getDay()
 
 				if (dayOfWeek === 0 || dayOfWeek === 6) {
@@ -218,13 +236,30 @@ export const useLeaveStore = defineStore('leave', {
 					return DayTypes.PartTimer
 				}
 
-				const daysOff = mom ? state.daysOffMom : state.daysOffPartner
+				const isBeforeDueDate = date.getTime() < state.personal.dueDate.getTime()
+
+				if (!mom && isBeforeDueDate) {
+					return DayTypes.Working
+				}
+
+				const dueDateIsOnDayOff = (mom && this.dueDateIsDayOffMom) || (!mom && this.dueDateIsDayOffPartner)
 				const workdays = mom ? state.personal.workDaysMom : state.personal.workDaysPartner
+
+				if (isBeforeDueDate) {
+					// Before due date, must be pregnancy leave
+					const businessDaysInBetween = calculateWorkingDaysInBetween(date, state.personal.dueDate, workdays)
+
+					if (businessDaysInBetween + (dueDateIsOnDayOff ? 0 : 1) <= state.daysOffMomBeforeDueDate) {
+						return DayTypes.ParentalLeave
+					} else {
+						return DayTypes.Working
+					}
+				}
+
+				const daysOff = mom ? state.daysOffMom : state.daysOffPartner
 				const businessDaysInBetween = calculateWorkingDaysInBetween(state.personal.dueDate, date, workdays)
 				let daysOffIndex: number
-				if (mom && this.dueDateIsDayOffMom) {
-					daysOffIndex = businessDaysInBetween
-				} else if (!mom && this.dueDateIsDayOffPartner) {
+				if (dueDateIsOnDayOff) {
 					daysOffIndex = businessDaysInBetween
 				} else {
 					daysOffIndex = Math.max(0, businessDaysInBetween - 1)
@@ -238,9 +273,12 @@ export const useLeaveStore = defineStore('leave', {
 			}
 		},
 		totalDaysUsed(state): (mom: boolean) => number {
-			return (mom: boolean) =>
-				(mom ? state.daysOffMom : state.daysOffPartner)
-				.filter(dayOff => dayOff).length
+			return (mom: boolean) => {
+				const daysOff = (mom ? state.daysOffMom : state.daysOffPartner)
+					.filter(dayOff => dayOff).length
+				const beforeBirth = mom ? state.daysOffMomBeforeDueDate : 0
+				return daysOff + beforeBirth
+			}
 		},
 		daysUsedForAllRegulations(state): DaysUsedForAllRegulations {
 			const result: DaysUsedForAllRegulations = {}
@@ -480,6 +518,8 @@ export const useLeaveStore = defineStore('leave', {
 			}
 
 			const date = new Date(state.personal.dueDate.valueOf())
+			// Todo: this 4 weeks can be flexible
+			date.setDate(date.getDate() - 4 * 7)
 			const result: YearMonth[] = []
 
 			for (let i = 0; i < 12; i ++) {

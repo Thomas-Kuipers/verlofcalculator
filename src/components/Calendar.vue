@@ -14,14 +14,14 @@ interface Column {
 }
 
 const months = computed<Column[][][]>(() => {
-    if (!leaveStore.personal.dueDate) {
+    if (!leaveStore.personal.dueDate || !leaveStore.yearMonths) {
         return []
     }
 
-    const months = []
-    for (let iMonth = 0; iMonth < 12; iMonth ++) {
-        const currentMonth = leaveStore.personal.dueDate.getMonth() + iMonth
-        const firstDayOfMonth = new Date(leaveStore.personal.dueDate.getFullYear(), currentMonth, 1)
+    const months: Column[][][] = []
+
+    leaveStore.yearMonths.forEach(yearMonth => {
+        const firstDayOfMonth = new Date(yearMonth.year, yearMonth.month, 1)
         const prevMonday = new Date(firstDayOfMonth.getTime())
         prevMonday.setDate(prevMonday.getDate() - (prevMonday.getDay() + 6) % 7)
 
@@ -29,33 +29,33 @@ const months = computed<Column[][][]>(() => {
         const weeks = []
 
         weekLoop:
-        for (let iWeek = 0; iWeek < 6; iWeek ++) {
-            const days = []
+            for (let iWeek = 0; iWeek < 6; iWeek ++) {
+                const days = []
 
-            for (let iDay = 0; iDay < 7; iDay ++) {
-                const date = new Date(prevMonday.getTime())
-                date.setDate(date.getDate() + i)
-                i ++
+                for (let iDay = 0; iDay < 7; iDay ++) {
+                    const date = new Date(prevMonday.getTime())
+                    date.setDate(date.getDate() + i)
+                    i ++
 
-                days.push({
-                    date: date,
-                    visible: date.getMonth() == firstDayOfMonth.getMonth(),
-                })
+                    days.push({
+                        date: date,
+                        visible: date.getMonth() == firstDayOfMonth.getMonth(),
+                    })
+                }
+
+                weeks.push(days)
+
+                const lastDay = days[days.length - 1]
+                const nextDay = new Date(lastDay.date.getTime())
+                nextDay.setDate(lastDay.date.getDate() + 1)
+
+                if (nextDay.getMonth() !== firstDayOfMonth.getMonth()) {
+                    break weekLoop
+                }
             }
-
-            weeks.push(days)
-
-            const lastDay = days[days.length - 1]
-            const nextDay = new Date(lastDay.date.getTime())
-            nextDay.setDate(lastDay.date.getDate() + 1)
-
-            if (nextDay.getMonth() !== firstDayOfMonth.getMonth()) {
-                break weekLoop
-            }
-        }
 
         months.push(weeks)
-    }
+    })
 
     return months
 })
