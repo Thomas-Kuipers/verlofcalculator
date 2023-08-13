@@ -671,10 +671,13 @@ export const useLeaveStore = defineStore('leave', {
 			const workdays = mom ? this.personal.workDaysMom : this.personal.workDaysPartner
 			const businessDays = calculateWorkingDaysInBetween(this.personal.dueDate, date, workdays)
 
+			const dueDateIsDayOff = mom ? this.dueDateIsDayOffMom : this.dueDateIsDayOffPartner
+			const index = businessDays + (dueDateIsDayOff ? 0 : -1)
+
 			if (mom) {
-				this.daysOffMom[businessDays] = off
+				this.daysOffMom[index] = off
 			} else {
-				this.daysOffPartner[businessDays] = off
+				this.daysOffPartner[index] = off
 			}
 		},
 		setGrossYearlySalary(salary: number | null, mom: boolean) {

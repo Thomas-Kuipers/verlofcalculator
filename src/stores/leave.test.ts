@@ -359,4 +359,47 @@ describe('Leave store', () => {
         expect(store.isDayOff(true, new Date(2023, 0, 3))).toBe(DayTypes.ParentalLeave)
         expect(store.isDayOff(true, new Date(2023, 0, 2))).toBe(DayTypes.Working)
     })
+
+    test('Set days bug', () => {
+        const store = useLeaveStore()
+        store.setWorkDays(false, [1, 2, 3, 4])
+        store.setDueDate(new Date(2023, 0, 6))
+        const thursday = new Date(2023, 1, 16)
+        expect(store.isDayOff(false, thursday)).toBe(DayTypes.Working)
+        store.setDay(thursday, true, false)
+        expect(store.isDayOff(false, thursday)).toBe(DayTypes.ParentalLeave)
+
+        const wednesday = new Date(2023, 1, 15)
+        expect(store.isDayOff(false, wednesday)).toBe(DayTypes.Working)
+        store.setDay(wednesday, true, false)
+        expect(store.isDayOff(false, wednesday)).toBe(DayTypes.ParentalLeave)
+    })
+
+    test('Set days bug 2', () => {
+        const store = useLeaveStore()
+        store.setWorkDays(false, [1, 2, 3, 4, 5])
+        store.setDueDate(new Date(2023, 0, 4))
+        const thursday = new Date(2023, 1, 16)
+        expect(store.isDayOff(false, thursday)).toBe(DayTypes.Working)
+        store.setDay(thursday, true, false)
+        expect(store.isDayOff(false, thursday)).toBe(DayTypes.ParentalLeave)
+
+        const wednesday = new Date(2023, 1, 15)
+        expect(store.isDayOff(false, wednesday)).toBe(DayTypes.Working)
+        store.setDay(wednesday, true, false)
+        expect(store.isDayOff(false, wednesday)).toBe(DayTypes.ParentalLeave)
+    })
+
+    test('Set days bug 3', () => {
+        const store = useLeaveStore()
+        store.setDaysOff(false, Array(100).fill(false))
+
+        const saturday = new Date(2020, 0, 4)
+        store.setDueDate(saturday)
+
+        const mondayAfter = new Date(2020, 0, 6)
+        expect(store.isDayOff(false, mondayAfter)).toBe(DayTypes.Working)
+        store.setDay(mondayAfter, true, false)
+        expect(store.isDayOff(false, mondayAfter)).toBe(DayTypes.ParentalLeave)
+    })
 })

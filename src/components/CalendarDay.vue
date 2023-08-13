@@ -30,7 +30,7 @@ const isDueDate = computed(() => props.date.getDate() === leaveStore.personal.du
         </span>
         <span
             :class="$style.dayOffPartner"
-            v-if="dayTypePartner === DayTypes.ParentalLeave || dayTypePartner === DayTypes.PartTimer"
+            v-if="(dayTypePartner === DayTypes.ParentalLeave || dayTypePartner === DayTypes.PartTimer) && !isDueDate"
         />
     </span>
 </template>
