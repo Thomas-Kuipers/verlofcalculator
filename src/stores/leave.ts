@@ -30,12 +30,6 @@ export interface Regulation {
 	infoLink: keyof MessageSchema
 }
 
-export interface Preset {
-	title: keyof MessageSchema
-	mom: number[]
-	secondParent: number[]
-}
-
 export enum CalendarBrushes {
 	mom,
 	partner,
@@ -189,7 +183,6 @@ export const useLeaveStore = defineStore('leave', {
 		regulations: defaultRegulations,
 		daysOffMom: Array(25).fill(true).concat(Array(245).fill(false)),
 		daysOffPartner: Array(5).fill(true).concat(Array(265).fill(false)),
-		// weeks: [], // getWeeksForPreset(defaultPresets[0]),
 		hasDragged: false,
 		activeBrush: CalendarBrushes.mom,
 	}),
@@ -465,111 +458,11 @@ export const useLeaveStore = defineStore('leave', {
 				}, 0)
 			}
 		},
-		totalFlexibleDays(state): (mom: boolean) => number {
-			return (mom: boolean) => {
-				const normalHoursPerWeek = (mom ? state.personal.workDaysMom : state.personal.workDaysPartner).length * 8
-
-				return defaultRegulations
-						.filter(regulation => mom ? regulation.mom : regulation.secondParent)
-						.reduce((prev: number, regulation: Regulation) => prev + regulation.daysOff(normalHoursPerWeek), 0)
-					- this.getTotalMinimumDays(mom)
-			}
-		},
 		normalDaysPerWeek(state): (mom: boolean) => number {
 			return (mom: boolean) => {
 				return (mom ? state.personal.workDaysMom : state.personal.workDaysPartner).length
 			}
 		},
-		presets(state): Preset[] {
-			return [
-				{
-					title: 'presetAsLittleAsPossible',
-					mom: this.getCombinedMinimumDays(true),
-					secondParent: this.getCombinedMinimumDays(false),
-				},
-				{
-					title: 'presetEverythingImmediately',
-					mom: this.getCombinedMinimumDays(true).concat(
-						divideOverWeeks(this.totalFlexibleDays(true), this.normalDaysPerWeek(true))
-					),
-					secondParent: this.getCombinedMinimumDays(false).concat(
-						divideOverWeeks(this.totalFlexibleDays(false), this.normalDaysPerWeek(false))
-					)
-				},
-				{
-					title: 'presetMonthlySwitch',
-					mom: this.getCombinedMinimumDays(true).concat(
-						monthlySwitch(this.totalFlexibleDays(true), this.normalDaysPerWeek(true))
-					),
-					secondParent: this.getCombinedMinimumDays(false).concat(5).concat(
-						monthlySwitch(this.totalFlexibleDays(false) - 5, this.normalDaysPerWeek(false))
-					),
-				},
-				{
-					title: 'presetPartTimersMom',
-					mom: this.getCombinedMinimumDays(true).concat(
-						divideOverWeeks(this.totalFlexibleDays(true), 2)
-					),
-					secondParent: this.getCombinedMinimumDays(false).concat(
-						divideOverWeeks(this.totalFlexibleDays(false), 3)
-					),
-				},
-				{
-					title: 'presetPartTimersPartner',
-					mom: this.getCombinedMinimumDays(true).concat(
-						divideOverWeeks(this.totalFlexibleDays(true), 3)
-					),
-					secondParent: this.getCombinedMinimumDays(false).concat(
-						divideOverWeeks(this.totalFlexibleDays(false), 2)
-					),
-				},
-				{
-					title: 'presetEqualPartTimers',
-					mom: this.getCombinedMinimumDays(true).concat(
-						divideOverWeeks(this.totalFlexibleDays(true), 2)
-					),
-					secondParent: this.getCombinedMinimumDays(false).concat(
-						divideOverWeeks(this.totalFlexibleDays(false), 2)
-					),
-				}
-			]
-		},
-
-		getCombinedMinimumDays(state): (mom: boolean) => number[] {
-			return (mom: boolean) => {
-				const regulations = defaultRegulations.filter(regulation =>
-					mom ? regulation.mom : regulation.secondParent
-				)
-
-				const normalHoursPerWeek = this.normalDaysPerWeek(mom) * 8
-
-				return regulations.reduce((combined: number[], regulation) => {
-					regulation.fixedDaysOff(normalHoursPerWeek).forEach((fixed, i) => {
-						if (combined[i]) {
-							combined[i] += fixed
-						} else {
-							combined[i] = fixed
-						}
-					})
-					return combined
-				}, [])
-			}
-		},
-
-		getTotalMinimumDays(state): (mom: boolean) => number {
-			return (mom: boolean) => {
-				return this.getCombinedMinimumDays(mom).reduce((total: number, days: number) =>
-					total + days, 0
-				)
-			}
-		},
-
-		getMinimumDaysInWeek(state): (mom: boolean, weekNumber: number) => number | null {
-			return (mom: boolean, weekNumber: number) => {
-				return this.getCombinedMinimumDays(mom)[weekNumber - 1] || null
-			}
-		},
-
 		normalMonthlyIncome(state): (mom: boolean) => number | null {
 			return (mom) => {
 				const yearly = mom ? state.personal.grossYearlySalaryMom : state.personal.grossYearlySalarySecondParent
@@ -847,14 +740,6 @@ function monthlySwitch(daysAvailable: number, daysPerWeek: number): number[] {
 	result = result.concat([daysAvailable % daysPerWeek])
 
 	return result
-}
-
-
-export function getWeeksForPreset(preset: Preset): Week[] {
-	return Array(52).fill(null).map((value, i) => ({
-		daysOffMom: preset.mom[i] || 0,
-		daysOffSecondParent: preset.secondParent[i] || 0
-	}))
 }
 
 export function calculateWorkingDaysInBetween(startDate: Date, endDate: Date, workdays: number[]): number {

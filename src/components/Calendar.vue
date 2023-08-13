@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { CalendarBrushes, Preset, useLeaveStore } from '@/stores/leave'
+import { CalendarBrushes, useLeaveStore } from '@/stores/leave'
 import { translate } from '@/helpers/translate'
 import TextContent from '@/components/TextContent.vue'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
@@ -170,18 +170,6 @@ function onMouseEnter(date: Date, visible: boolean) {
 
 .container {
     margin: 0 16px 16px;
-}
-
-.presets {
-    margin-bottom: 24px;
-}
-
-.preset {
-    display: inline-block;
-    border: 1px solid variables.$lightSeparator;
-    margin: 0 4px 4px 0;
-    padding: 2px 8px;
-    border-radius: 5px;
 }
 
 .weekend {
