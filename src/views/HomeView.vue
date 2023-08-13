@@ -33,11 +33,11 @@ const { t } = translate()
                     <tr>
                         <td colspan="3" :class="$style.spacer"></td>
                     </tr>
-                    <Financial />
+                    <FinancialMonthly />
                     <tr>
                         <td colspan="3" :class="$style.spacer"></td>
                     </tr>
-                    <FinancialMonthly />
+                    <Financial />
                 </table>
 <!--                <Analysis />-->
                 <TextContent :class="$style.about">

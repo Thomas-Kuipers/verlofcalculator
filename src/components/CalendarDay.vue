@@ -1,0 +1,75 @@
+<script lang="ts" setup>
+
+import { DayTypes, useLeaveStore } from '@/stores/leave'
+import { computed } from 'vue'
+
+const props = defineProps<{
+    date: Date,
+    visible: boolean
+}>()
+
+const leaveStore = useLeaveStore()
+
+const dayTypeMom = computed(() => leaveStore.isDayOff(true, props.date))
+const dayTypePartner = computed(() => leaveStore.isDayOff(false, props.date))
+
+</script>
+<template>
+    <span
+        :class="{
+            [$style.day]: true,
+            [$style.dayOffMom]: dayTypeMom === DayTypes.ParentalLeave || dayTypeMom === DayTypes.PartTimer,
+        }"
+        v-if="visible">
+        <span :class="$style.dueDate" v-if="date.getDate() === leaveStore.personal.dueDate!!.getDate() && date.getMonth() === leaveStore.personal.dueDate!!.getMonth()">
+            🥳
+        </span>
+        <span v-else>
+            {{ date.getDate() }}
+        </span>
+        <span
+            :class="$style.dayOffPartner"
+            v-if="dayTypePartner === DayTypes.ParentalLeave || dayTypePartner === DayTypes.PartTimer"
+        />
+    </span>
+</template>
+
+<style lang="scss" module>
+@use '@/assets/scss/variables.scss';
+
+
+.day {
+    //border-radius: 100%;
+    display: inline-block;
+    width: 29px;
+    height: 29px;
+    text-align: center;
+    line-height: 25px;
+    position: relative;
+}
+
+.dayOffMom {
+    border-bottom: 4px solid deeppink;
+}
+
+.dayOffPartner {
+    //border-radius: 100%;
+    display: inline-block;
+    width: 100%;
+    height: 100%;
+    border-bottom: 4px solid dodgerblue;
+    position: absolute;
+    top: -1px;
+    left: 0;
+}
+
+
+.dueDate {
+    font-size: 30px;
+    position: relative;
+    display: inline-block;
+    transform: translateY(7px);
+}
+
+
+</style>

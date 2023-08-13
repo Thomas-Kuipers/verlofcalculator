@@ -1,7 +1,8 @@
 import { defineStore } from 'pinia'
 import { MessageSchema } from '@/main'
 
-export const uwvMaximumDagloon = 256.54
+export const uwvMaximumDagloon = Math.round(256.54)
+export const seventyPercentOfMax = Math.round(.7 * uwvMaximumDagloon)
 export const officalAverageWorkingDaysPerYear = 261
 
 export interface Week {
@@ -99,7 +100,7 @@ const defaultRegulations: Regulation[] = [
 		mom: false,
 		secondParent: true,
 		percentageOfSalary: 70,
-		dailySalaryMax: 0.7 * uwvMaximumDagloon,
+		dailySalaryMax: seventyPercentOfMax,
 		info: 'regulationAdditionalBirthInfoHtml',
 		infoList: 'regulationAdditionalBirthInfoListHtml',
 		infoLink: 'regulationAdditionalBirthInfoLinkHtml',
@@ -113,7 +114,7 @@ const defaultRegulations: Regulation[] = [
 		mom: true,
 		secondParent: true,
 		percentageOfSalary: 70,
-		dailySalaryMax: 0.7 * uwvMaximumDagloon,
+		dailySalaryMax: seventyPercentOfMax,
 		info: 'regulationPaidParentalInfoHtml',
 		infoList: 'regulationPaidParentalInfoListHtml',
 		infoLink: 'regulationPaidParentalInfoLinkHtml',
@@ -151,6 +152,27 @@ interface DaysUsedForAllRegulations {
 	}
 }
 
+export enum DayTypes {
+	Working = 'Working',
+	PartTimer= 'PartTimer',
+	ParentalLeave = 'ParentalLeave',
+	Weekend = 'Weekend',
+}
+
+export interface YearMonthLeaveDays {
+	[yearMonth: string]: number
+}
+
+export interface YearMonthIncome {
+	[yearMonth: string]: number
+}
+
+export interface YearMonthRegulations {
+	[yearMonth: string]: {
+		[regulationId: string]: number
+	}
+}
+
 export const useLeaveStore = defineStore('leave', {
 	state: (): Leave => ({
 		personal: {
@@ -172,35 +194,40 @@ export const useLeaveStore = defineStore('leave', {
 		activeBrush: CalendarBrushes.mom,
 	}),
 	getters: {
-		isDayOff(state): (mom: boolean, date: Date) => boolean {
+		isDayOff(state): (mom: boolean, date: Date) => null | DayTypes {
 			return (mom, date) => {
 				if (!state.personal.dueDate) {
-					return false
+					return null
 				}
 
 				if (date.getTime() < state.personal.dueDate.getTime()) {
-					return false
+					// To do: not correct for mom, she's on pregnancy leave
+					return DayTypes.Working
 				}
 
 				const dayOfWeek = date.getDay()
 
 				if (dayOfWeek === 0 || dayOfWeek === 6) {
-					return false
+					return DayTypes.Weekend
 				}
 
 				if (mom && !state.personal.workDaysMom.includes(dayOfWeek)) {
-					return true
+					return DayTypes.PartTimer
 				}
 
 				if (!mom && !state.personal.workDaysPartner.includes(dayOfWeek)) {
-					return true
+					return DayTypes.PartTimer
 				}
 
 				const daysOff = mom ? state.daysOffMom : state.daysOffPartner
 				const workdays = (mom ? state.personal.workDaysMom : state.personal.workDaysPartner).length
-				const businessDaysInBetween = calculateBusinessDays(state.personal.dueDate, date, workdays) - 2
+				const businessDaysInBetween = Math.max(0, calculateBusinessDays(state.personal.dueDate, date, workdays) - 2)
 
-				return daysOff[businessDaysInBetween]
+				if (daysOff[businessDaysInBetween]) {
+					return DayTypes.ParentalLeave
+				} else {
+					return DayTypes.Working
+				}
 			}
 		},
 		totalDaysUsed(state): (mom: boolean) => number {
@@ -313,7 +340,7 @@ export const useLeaveStore = defineStore('leave', {
 		regulations70Percent(state): Regulation[] {
 			return state.regulations.filter(regulation =>
 				regulation.percentageOfSalary === 70
-				&& regulation.dailySalaryMax === 0.7 * uwvMaximumDagloon
+				&& regulation.dailySalaryMax === seventyPercentOfMax
 			)
 		},
 		daysOffAt70Percent(state): (mom: boolean) => number {
@@ -358,7 +385,7 @@ export const useLeaveStore = defineStore('leave', {
 
 				const hoursPerWeek = (mom ? state.personal.workDaysMom : state.personal.workDaysPartner).length * 8
 
-				return (40 / hoursPerWeek) * (yearly / officalAverageWorkingDaysPerYear)
+				return Math.round((40 / hoursPerWeek) * (yearly / officalAverageWorkingDaysPerYear))
 			}
 		},
 		payoutAtMaxUwv(state): (mom: boolean) => number | null {
@@ -391,7 +418,7 @@ export const useLeaveStore = defineStore('leave', {
 					return null
 				}
 
-				return missedIncomeForParametersPerDay(70, 0.7 * uwvMaximumDagloon, dailySalary)
+				return missedIncomeForParametersPerDay(70, seventyPercentOfMax, dailySalary)
 			}
 		},
 		payoutAt70Percent(state): (mom: boolean) => number | null {
@@ -402,7 +429,7 @@ export const useLeaveStore = defineStore('leave', {
 					return null
 				}
 
-				return payoutPerDayForParameters(70, 0.7 * uwvMaximumDagloon, daily)
+				return payoutPerDayForParameters(70, seventyPercentOfMax, daily)
 			}
 		},
 		missedIncomeUnpaid(state): (mom: boolean) => number | null {
@@ -536,28 +563,145 @@ export const useLeaveStore = defineStore('leave', {
 			}
 		},
 
-		// childCareDaysPerWeek(state): (week: Week) => number {
-		// 	return (week: Week) => {
-		// 		const freeWeekDaysMom = (40 - state.personal.normalHoursPerWeekMom) / 8
-		// 		const freeWeekDaysSecondParent = (40 - state.personal.normalHoursPerWeekSecondParent) / 8
-		//
-		// 		return Math.max(0,
-		// 			5
-		// 			- week.daysOffMom
-		// 			- week.daysOffSecondParent
-		// 			- freeWeekDaysMom
-		// 			- freeWeekDaysSecondParent
-		// 		)
-		// 	}
-		// },
+		normalMonthlyIncome(state): (mom: boolean) => number | null {
+			return (mom) => {
+				const yearly = mom ? state.personal.grossYearlySalaryMom : state.personal.grossYearlySalarySecondParent
 
-		// Needs to totally change: calculate the weeks based on the due date
-		// totalChildcareDays(state): number {
-		// 	return state.weeks.reduce(
-		// 		(total, week) => total + this.childCareDaysPerWeek(week)
-		// 		, 0
-		// 	)
-		// }
+				if (!yearly) {
+					return null
+				}
+
+				return Math.round(yearly / 12)
+			}
+		},
+		yearMonths(state): YearMonth[] | null {
+			if (!state.personal.dueDate) {
+				return null
+			}
+
+			const date = new Date(state.personal.dueDate.valueOf())
+			const result: YearMonth[] = []
+
+			for (let i = 0; i < 12; i ++) {
+				const yearMonth = {
+					year: date.getFullYear(),
+					month: date.getMonth()
+				}
+
+				date.setMonth(date.getMonth() + 1)
+				result.push(yearMonth)
+			}
+
+			return result
+		},
+		yearMonthLeaveDays(state): (mom: boolean) => YearMonthLeaveDays | null {
+			return (mom) => {
+				if (!this.yearMonths) {
+					return null
+				}
+
+				const result: YearMonthLeaveDays = {}
+
+				this.yearMonths.forEach(yearMonth => {
+					const date = new Date(yearMonth.year, yearMonth.month, 1)
+					let leaveDaysThisMonth = 0
+
+					for (let day = 0; day < 31; day ++) {
+						const dayType = this.isDayOff(mom, date)
+
+						if (dayType === DayTypes.ParentalLeave) {
+							leaveDaysThisMonth ++
+						}
+
+						date.setDate(date.getDate() + 1)
+
+						if (date.getMonth() !== yearMonth.month) {
+							break
+						}
+					}
+
+					result[yearMonthKey(yearMonth.year, yearMonth.month)] = leaveDaysThisMonth
+				})
+
+				return result
+			}
+		},
+		yearMonthRegulations(state): (mom: boolean) => YearMonthRegulations | null {
+			return (mom) => {
+				const leaveDays = this.yearMonthLeaveDays(mom)
+				if (!leaveDays) {
+					return null
+				}
+
+				const result: YearMonthRegulations = {}
+				const counter: { [regulationId: string] : number } = {}
+				Object.keys(this.daysUsedForAllRegulations).forEach(regulationId => {
+					if (mom) {
+						counter[regulationId] = this.daysUsedForAllRegulations[regulationId].mom
+					} else {
+						counter[regulationId] = this.daysUsedForAllRegulations[regulationId].secondParent
+					}
+				})
+
+				Object.keys(leaveDays).forEach(yearMonth => {
+					let leaveDaysThisMonth = leaveDays[yearMonth]
+					result[yearMonth] = {}
+
+					this.regulations.forEach(regulation => {
+						if (counter[regulation.id] > 0) {
+							const use = Math.min(counter[regulation.id], leaveDaysThisMonth)
+							counter[regulation.id] = counter[regulation.id] - use
+
+							if (use > 0) {
+								result[yearMonth][regulation.id] = use
+								leaveDaysThisMonth = leaveDaysThisMonth - use
+							}
+						}
+					})
+				})
+
+				return result
+			}
+		},
+		yearMonthIncome(state): (mom: boolean) => YearMonthIncome | null {
+			return (mom) => {
+				const yearMonthRegulations = this.yearMonthRegulations(mom)
+				if (!yearMonthRegulations) {
+					return null
+				}
+
+				const dailySalary = this.dailySalary(mom)
+				if (!dailySalary) {
+					return null
+				}
+
+				const normalMonthly = this.normalMonthlyIncome(mom)
+				if (!normalMonthly) {
+					return null
+				}
+
+				const income: YearMonthIncome = {}
+
+				Object.keys(yearMonthRegulations).forEach(yearMonth => {
+					const perRegulation = yearMonthRegulations[yearMonth]
+					let incomeThisMonth = normalMonthly
+
+					Object.keys(perRegulation).forEach(regulationId => {
+						const days = perRegulation[regulationId]
+						const missedIncome = missedIncomeForRegulationPerDay(
+							this.regulations.find(find => find.id === regulationId)!!,
+							dailySalary
+						)
+
+						incomeThisMonth = incomeThisMonth - days * missedIncome
+					})
+
+					income[yearMonth] = Math.max(0, Math.round(incomeThisMonth))
+				})
+
+				return income
+			}
+		}
 	},
 	actions: {
 		setDay(date: Date, off: boolean, mom: boolean) {
@@ -592,8 +736,6 @@ export const useLeaveStore = defineStore('leave', {
 		},
 		setWorkDays(mom: boolean, workDays: number[]) {
 			if (mom) {
-				console.log(workDays)
-
 				this.personal.workDaysMom = workDays
 			} else {
 				this.personal.workDaysPartner = workDays
@@ -623,7 +765,7 @@ function payoutPerDayForParameters(
 	dailySalaryMax: number | null,
 	normalIncomePerDay: number
 ): number {
-	const percentageWise = percentageOfSalary / 100 * normalIncomePerDay
+	const percentageWise = Math.round(percentageOfSalary / 100 * normalIncomePerDay)
 
 	if (dailySalaryMax === null) {
 		return percentageWise
@@ -727,4 +869,8 @@ function calculateBusinessDays(startDate: Date, endDate: Date, workdaysPerWeek: 
 	}
 
 	return days;
+}
+
+export function yearMonthKey(year: number, month: number): string {
+	return year + '-' + month
 }

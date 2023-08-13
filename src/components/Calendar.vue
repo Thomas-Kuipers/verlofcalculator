@@ -3,6 +3,7 @@ import { CalendarBrushes, Preset, useLeaveStore } from '@/stores/leave'
 import { translate } from '@/helpers/translate'
 import TextContent from '@/components/TextContent.vue'
 import { computed, onMounted, onUnmounted, ref } from 'vue'
+import CalendarDay from '@/components/CalendarDay.vue'
 
 const leaveStore = useLeaveStore()
 const { t } = translate()
@@ -90,11 +91,13 @@ function changeDay(date: Date) {
     }
 }
 
-function onClick(date: Date) {
+function onClick(date: Date, visible: boolean) {
+    if (!visible) return
     changeDay(date)
 }
 
-function onMouseEnter(date: Date) {
+function onMouseEnter(date: Date, visible: boolean) {
+    if (!visible) return
     if (isMouseDown.value) {
         changeDay(date)
     }
@@ -154,26 +157,10 @@ function onMouseEnter(date: Date) {
                     </thead>
                     <tr v-for="week in month">
                         <td v-for="day in week"
-                            @mouseenter="() => onMouseEnter(day.date)"
-                            @mousedown="() => onClick(day.date)"
+                            @mouseenter="() => onMouseEnter(day.date, day.visible)"
+                            @mousedown="() => onClick(day.date, day.visible)"
                             :class="{[$style.dayColumn]: true, [$style.weekend]: day.date.getDay() === 6 || day.date.getDay() === 0}">
-                        <span
-                            :class="{
-                                [$style.day]: true,
-                                [$style.dayOffMom]: leaveStore.isDayOff(true, day.date),
-                            }"
-                            v-if="day.visible">
-                            <span :class="$style.dueDate" v-if="day.date.getDate() === leaveStore.personal.dueDate!!.getDate() && day.date.getMonth() === leaveStore.personal.dueDate!!.getMonth()">
-                                🥳
-                            </span>
-                            <span v-else>
-                                {{ day.date.getDate() }}
-                            </span>
-                            <span
-                                :class="$style.dayOffPartner"
-                                v-if="leaveStore.isDayOff(false, day.date)"
-                            />
-                        </span>
+                            <CalendarDay :date="day.date" :visible="day.visible" />
                         </td>
                     </tr>
                 </template>
@@ -232,37 +219,6 @@ function onMouseEnter(date: Date) {
     }
 }
 
-.day {
-    //border-radius: 100%;
-    display: inline-block;
-    width: 29px;
-    height: 29px;
-    text-align: center;
-    line-height: 25px;
-    position: relative;
-}
-
-.dayOffMom {
-    border-bottom: 4px solid deeppink;
-}
-
-.dayOffPartner {
-    //border-radius: 100%;
-    display: inline-block;
-    width: 100%;
-    height: 100%;
-    border-bottom: 4px solid dodgerblue;
-    position: absolute;
-    top: -1px;
-    left: 0;
-}
-
-.dueDate {
-    font-size: 30px;
-    position: relative;
-    display: inline-block;
-    transform: translateY(7px);
-}
 
 .brushIcon {
     font-size: 25px;
