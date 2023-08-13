@@ -272,6 +272,8 @@ describe('Leave store', () => {
     const wednesday = new Date(2023, 0, 4)
     const thursday = new Date(2023, 0, 5)
     const friday = new Date(2023, 0, 6)
+    const saturday = new Date(2023, 0, 7)
+    const sunday = new Date(2023, 0, 8)
     const mondayNextWeek = new Date(2023, 0, 9)
     const tuesdayNextWeek = new Date(2023, 0, 10)
 
@@ -297,6 +299,23 @@ describe('Leave store', () => {
         expect(calculateWorkingDaysInBetween(monday, tuesdayNextWeek, schedule)).toBe(3)
     })
 
+    test('Working days over the weekend', () => {
+        const schedule = [1, 2, 3, 4, 5]
+        expect(calculateWorkingDaysInBetween(friday, saturday, schedule)).toBe(0)
+        expect(calculateWorkingDaysInBetween(friday, sunday, schedule)).toBe(0)
+        expect(calculateWorkingDaysInBetween(saturday, saturday, schedule)).toBe(0)
+        expect(calculateWorkingDaysInBetween(saturday, sunday, schedule)).toBe(0)
+        expect(calculateWorkingDaysInBetween(saturday, mondayNextWeek, schedule)).toBe(1)
+        expect(calculateWorkingDaysInBetween(saturday, tuesdayNextWeek, schedule)).toBe(2)
+        expect(calculateWorkingDaysInBetween(sunday, mondayNextWeek, schedule)).toBe(1)
+        expect(calculateWorkingDaysInBetween(sunday, tuesdayNextWeek, schedule)).toBe(2)
+    })
+
+    test('Tuesday bug', () => {
+        const schedule = [2, 3, 4]
+        expect(calculateWorkingDaysInBetween(monday, tuesday, schedule)).toBe(1)
+    })
+
     test('Birth leave for partner dates', () => {
         const store= useLeaveStore()
         store.setDueDate(monday)
@@ -313,14 +332,14 @@ describe('Leave store', () => {
         const store= useLeaveStore()
         store.setDueDate(monday)
         store.setWorkDays(false, [2, 3, 4])
+        store.setDaysOff(false, [true, true, true])
+        expect(store.isDayOff(false, monday)).toBe(DayTypes.PartTimer)
         expect(store.isDayOff(false, tuesday)).toBe(DayTypes.ParentalLeave)
         expect(store.isDayOff(false, wednesday)).toBe(DayTypes.ParentalLeave)
         expect(store.isDayOff(false, thursday)).toBe(DayTypes.ParentalLeave)
         expect(store.isDayOff(false, friday)).toBe(DayTypes.PartTimer)
         expect(store.isDayOff(false, mondayNextWeek)).toBe(DayTypes.PartTimer)
-
-        // To do: this one fails
-        // expect(store.isDayOff(false, tuesdayNextWeek)).toBe(DayTypes.Working)
+        expect(store.isDayOff(false, tuesdayNextWeek)).toBe(DayTypes.Working)
     })
 
     // To do: test for due date on the weekend

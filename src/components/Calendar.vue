@@ -156,7 +156,7 @@ function onMouseEnter(date: Date, visible: boolean) {
                     <td v-for="day in week"
                         @mouseenter="() => onMouseEnter(day.date, day.visible)"
                         @mousedown="() => onClick(day.date, day.visible)"
-                        :class="{[$style.dayColumn]: true, [$style.weekend]: day.date.getDay() === 6 || day.date.getDay() === 0}">
+                        :class="{[$style.dayColumn]: true}">
                         <CalendarDay :date="day.date" :visible="day.visible" />
                     </td>
                 </tr>

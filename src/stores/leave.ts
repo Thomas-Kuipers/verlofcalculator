@@ -194,6 +194,12 @@ export const useLeaveStore = defineStore('leave', {
 		activeBrush: CalendarBrushes.mom,
 	}),
 	getters: {
+		dueDateIsDayOffMom(): boolean {
+			return !!this.personal.dueDate && this.personal.workDaysMom.includes(this.personal.dueDate.getDay())
+		},
+		dueDateIsDayOffPartner(): boolean {
+			return !!this.personal.dueDate && this.personal.workDaysPartner.includes(this.personal.dueDate.getDay())
+		},
 		isDayOff(state): (mom: boolean, date: Date) => null | DayTypes {
 			return (mom, date) => {
 				if (!state.personal.dueDate) {
@@ -222,8 +228,16 @@ export const useLeaveStore = defineStore('leave', {
 				const daysOff = mom ? state.daysOffMom : state.daysOffPartner
 				const workdays = mom ? state.personal.workDaysMom : state.personal.workDaysPartner
 				const businessDaysInBetween = calculateWorkingDaysInBetween(state.personal.dueDate, date, workdays)
+				let daysOffIndex: number
+				if (mom && this.dueDateIsDayOffMom) {
+					daysOffIndex = businessDaysInBetween
+				} else if (!mom && this.dueDateIsDayOffPartner) {
+					daysOffIndex = businessDaysInBetween
+				} else {
+					daysOffIndex = Math.max(0, businessDaysInBetween - 1)
+				}
 
-				if (daysOff[businessDaysInBetween]) {
+				if (daysOff[daysOffIndex]) {
 					return DayTypes.ParentalLeave
 				} else {
 					return DayTypes.Working
@@ -728,8 +742,10 @@ export const useLeaveStore = defineStore('leave', {
 		},
 		setWorkDays(mom: boolean, workDays: number[]) {
 			if (mom) {
+				// todo: if its still on default, then adapt days off
 				this.personal.workDaysMom = workDays
 			} else {
+				// todo: if its still on default, then adapt off
 				this.personal.workDaysPartner = workDays
 			}
 		},

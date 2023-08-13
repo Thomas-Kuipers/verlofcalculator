@@ -24,7 +24,7 @@ const dayTypePartner = computed(() => leaveStore.isDayOff(false, props.date))
         <span :class="$style.dueDate" v-if="date.getDate() === leaveStore.personal.dueDate!!.getDate() && date.getMonth() === leaveStore.personal.dueDate!!.getMonth()">
             🥳
         </span>
-        <span v-else>
+        <span v-else :class="{[$style.weekend]: date.getDay() === 6 || date.getDay() === 0}">
             {{ date.getDate() }}
         </span>
         <span
@@ -69,6 +69,10 @@ const dayTypePartner = computed(() => leaveStore.isDayOff(false, props.date))
     position: relative;
     display: inline-block;
     transform: translateY(7px);
+}
+
+.weekend {
+    opacity: .3;
 }
 
 
