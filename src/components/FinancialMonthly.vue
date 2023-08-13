@@ -50,6 +50,7 @@ const yearMonths = computed(() => {
         <th />
         <th>{{ t('financialThMom') }}</th>
         <th>{{ t('financialThPartner') }}</th>
+        <th :class="$style.total">Total</th>
     </tr>
     <FinancialMonthRow
         v-for="yearMonth in yearMonths"
@@ -70,7 +71,7 @@ const yearMonths = computed(() => {
     @include typography.title2;
 }
 
-.salaryInput {
+.total {
     width: 90px;
 }
 </style>

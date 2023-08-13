@@ -90,6 +90,7 @@ const calculationPartner = computed(() => {
     <RowWithInfo :title="getTitle(yearMonth)" >
         <td><Money v-if="incomeMom" :value="incomeMom[key]" /></td>
         <td><Money v-if="incomePartner" :value="incomePartner[key]" /></td>
+        <td><Money v-if="incomePartner && incomeMom" :value="incomePartner[key] + incomeMom[key]" /></td>
         <template #info>
             <template v-if="leaveDaysMom && incomeMom && regulationsMom">
                 <h3>Mom</h3>
