@@ -220,8 +220,8 @@ export const useLeaveStore = defineStore('leave', {
 				}
 
 				const daysOff = mom ? state.daysOffMom : state.daysOffPartner
-				const workdays = (mom ? state.personal.workDaysMom : state.personal.workDaysPartner).length
-				const businessDaysInBetween = Math.max(0, calculateBusinessDays(state.personal.dueDate, date, workdays) - 2)
+				const workdays = mom ? state.personal.workDaysMom : state.personal.workDaysPartner
+				const businessDaysInBetween = calculateWorkingDaysInBetween(state.personal.dueDate, date, workdays)
 
 				if (daysOff[businessDaysInBetween]) {
 					return DayTypes.ParentalLeave
@@ -235,13 +235,6 @@ export const useLeaveStore = defineStore('leave', {
 				(mom ? state.daysOffMom : state.daysOffPartner)
 				.filter(dayOff => dayOff).length
 		},
-		// Only used in Analysis.vue
-		// daysPerWeek(state): (mom: boolean) => number[] {
-		// 	return (mom: boolean) => state.weeks.reduce((total: number[], week) =>
-		// 			total.concat(mom ? week.daysOffMom : week.daysOffSecondParent),
-		// 		[]
-		// 	)
-		// },
 		daysUsedForAllRegulations(state): DaysUsedForAllRegulations {
 			const result: DaysUsedForAllRegulations = {}
 			const calculate = (regulationId: string, mom: boolean): number => {
@@ -713,14 +706,13 @@ export const useLeaveStore = defineStore('leave', {
 				return
 			}
 
-			const workdays = (mom ? this.personal.workDaysMom : this.personal.workDaysPartner).length
-			const businessDays = calculateBusinessDays(this.personal.dueDate, date, workdays)
-			const index = businessDays - 2
+			const workdays = mom ? this.personal.workDaysMom : this.personal.workDaysPartner
+			const businessDays = calculateWorkingDaysInBetween(this.personal.dueDate, date, workdays)
 
 			if (mom) {
-				this.daysOffMom[index] = off
+				this.daysOffMom[businessDays] = off
 			} else {
-				this.daysOffPartner[index] = off
+				this.daysOffPartner[businessDays] = off
 			}
 		},
 		setGrossYearlySalary(salary: number | null, mom: boolean) {
@@ -834,43 +826,33 @@ export function getWeeksForPreset(preset: Preset): Week[] {
 	}))
 }
 
-function calculateBusinessDays(startDate: Date, endDate: Date, workdaysPerWeek: number){
-// Validate input
-	if (endDate < startDate)
-		return 0;
-
-// Calculate days between dates
-	var millisecondsPerDay = 86400 * 1000; // Day in milliseconds
-	startDate.setHours(0,0,0,1);  // Start just after midnight
-	endDate.setHours(23,59,59,999);  // End just before midnight
-	var diff = endDate.getTime() - startDate.getTime();  // Milliseconds between datetime objects
-	var days = Math.ceil(diff / millisecondsPerDay);
-
-	const daysPerWeekThatDontCount = 2 /*weekend*/ + 5 - workdaysPerWeek
-
-// Subtract two weekend days for every week in between
-	var weeks = Math.floor(days / 7);
-	days = days - (weeks * daysPerWeekThatDontCount);
-
-// Handle special cases
-	var startDay = startDate.getDay();
-	var endDay = endDate.getDay();
-
-// Remove weekend not previously removed.
-	if (startDay - endDay > 1)
-		days = days - daysPerWeekThatDontCount;
-
-// Remove start day if span starts on Sunday but ends before Saturday
-	if (startDay == 0 && endDay != 6) {
-		days = days - 1;
+export function calculateWorkingDaysInBetween(startDate: Date, endDate: Date, workdays: number[]): number {
+	const endTime = endDate.getTime()
+	const startTime = startDate.getTime()
+	if (endTime < startTime) {
+		return 0
 	}
 
-// Remove end day if span ends on Saturday but starts after Sunday
-	if (endDay == 6 && startDay != 0) {
-		days = days - 1;
+	const diff = endTime - startTime
+	const millisecondsPerDay = 86400 * 1000
+	const diffDays = Math.ceil(diff / millisecondsPerDay)
+
+	let counter = 0
+	let currentWeekDay = startDate.getDay()
+
+	for (let i = 0; i < diffDays; i ++) {
+		if (currentWeekDay === 6) {
+			currentWeekDay = 0
+		} else {
+			currentWeekDay ++
+		}
+
+		if (workdays.includes(currentWeekDay)) {
+			counter ++
+		}
 	}
 
-	return days;
+	return counter
 }
 
 export function yearMonthKey(year: number, month: number): string {

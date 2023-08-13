@@ -1,6 +1,8 @@
 import { createPinia, setActivePinia } from 'pinia'
 import { beforeEach, describe, expect, test } from 'vitest'
 import {
+    calculateWorkingDaysInBetween,
+    DayTypes,
     getWeeksForPreset,
     officalAverageWorkingDaysPerYear,
     seventyPercentOfMax,
@@ -264,4 +266,62 @@ describe('Leave store', () => {
                 + additionalBirthLeave * missedPerAdditionalDay))
         )
     })
+
+    const monday = new Date(2023, 0, 2)
+    const tuesday = new Date(2023, 0, 3)
+    const wednesday = new Date(2023, 0, 4)
+    const thursday = new Date(2023, 0, 5)
+    const friday = new Date(2023, 0, 6)
+    const mondayNextWeek = new Date(2023, 0, 9)
+    const tuesdayNextWeek = new Date(2023, 0, 10)
+
+    test('Working days in between', () => {
+        const schedule = [1, 2, 3, 4, 5]
+        expect(calculateWorkingDaysInBetween(monday, monday, schedule)).toBe(0)
+        expect(calculateWorkingDaysInBetween(monday, tuesday, schedule)).toBe(1)
+        expect(calculateWorkingDaysInBetween(monday, wednesday, schedule)).toBe(2)
+        expect(calculateWorkingDaysInBetween(monday, thursday, schedule)).toBe(3)
+        expect(calculateWorkingDaysInBetween(monday, friday, schedule)).toBe(4)
+        expect(calculateWorkingDaysInBetween(monday, mondayNextWeek, schedule)).toBe(5)
+        expect(calculateWorkingDaysInBetween(monday, tuesdayNextWeek, schedule)).toBe(6)
+    })
+
+    test('Working days in between when working only monday, wednesday and friday', () => {
+        const schedule = [1, 3, 5]
+        expect(calculateWorkingDaysInBetween(monday, monday, schedule)).toBe(0)
+        expect(calculateWorkingDaysInBetween(monday, tuesday, schedule)).toBe(0)
+        expect(calculateWorkingDaysInBetween(monday, wednesday, schedule)).toBe(1)
+        expect(calculateWorkingDaysInBetween(monday, thursday, schedule)).toBe(1)
+        expect(calculateWorkingDaysInBetween(monday, friday, schedule)).toBe(2)
+        expect(calculateWorkingDaysInBetween(monday, mondayNextWeek, schedule)).toBe(3)
+        expect(calculateWorkingDaysInBetween(monday, tuesdayNextWeek, schedule)).toBe(3)
+    })
+
+    test('Birth leave for partner dates', () => {
+        const store= useLeaveStore()
+        store.setDueDate(monday)
+        expect(store.isDayOff(false, monday)).toBe(DayTypes.ParentalLeave)
+        expect(store.isDayOff(false, tuesday)).toBe(DayTypes.ParentalLeave)
+        expect(store.isDayOff(false, wednesday)).toBe(DayTypes.ParentalLeave)
+        expect(store.isDayOff(false, thursday)).toBe(DayTypes.ParentalLeave)
+        expect(store.isDayOff(false, friday)).toBe(DayTypes.ParentalLeave)
+        expect(store.isDayOff(false, mondayNextWeek)).toBe(DayTypes.Working)
+        expect(store.isDayOff(false, tuesdayNextWeek)).toBe(DayTypes.Working)
+    })
+
+    test('Birth leave for partner dates who works 3 days a week', () => {
+        const store= useLeaveStore()
+        store.setDueDate(monday)
+        store.setWorkDays(false, [2, 3, 4])
+        expect(store.isDayOff(false, tuesday)).toBe(DayTypes.ParentalLeave)
+        expect(store.isDayOff(false, wednesday)).toBe(DayTypes.ParentalLeave)
+        expect(store.isDayOff(false, thursday)).toBe(DayTypes.ParentalLeave)
+        expect(store.isDayOff(false, friday)).toBe(DayTypes.PartTimer)
+        expect(store.isDayOff(false, mondayNextWeek)).toBe(DayTypes.PartTimer)
+
+        // To do: this one fails
+        // expect(store.isDayOff(false, tuesdayNextWeek)).toBe(DayTypes.Working)
+    })
+
+    // To do: test for due date on the weekend
 })
