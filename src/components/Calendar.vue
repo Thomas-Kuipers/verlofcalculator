@@ -105,73 +105,63 @@ function onMouseEnter(date: Date, visible: boolean) {
 </script>
 
 <template>
-    <div :class="$style.container">
+    <div :class="$style.container" v-if="leaveStore.personal.dueDate">
         <TextContent>
             <h2>{{ t('calendarTitle') }}</h2>
         </TextContent>
-
-        <p v-if="!leaveStore.personal.dueDate">First fill in your due date before you can use the calendar.</p>
-        <template v-else>
-            <p>
-                <span :class="$style.brushIcon">🖌</span> Select a brush to draw on the calendar
-            </p>
-            <ul :class="$style.brushes">
-                <li @click="() => leaveStore.setActiveBrush(CalendarBrushes.mom)" :class="{
-                [$style.brush]: true,
-                [$style.brushMom]: true,
-                [$style.brushActive]: leaveStore.activeBrush === CalendarBrushes.mom
-            }">Mom</li>
-                <li @click="() => leaveStore.setActiveBrush(CalendarBrushes.partner)" :class="{
-                [$style.brush]: true,
-                [$style.brushPartner]: true,
-                [$style.brushActive]: leaveStore.activeBrush === CalendarBrushes.partner
-            }">Partner</li>
-                <li @click="() => leaveStore.setActiveBrush(CalendarBrushes.eraser)" :class="{
-                [$style.brush]: true,
-                [$style.brushEraser]: true,
-                [$style.brushActive]: leaveStore.activeBrush === CalendarBrushes.eraser
-            }">Eraser</li>
-            </ul>
-            <table :class="{
-            [$style.table]: true,
-            [$style.tableWithMomBrush]: leaveStore.activeBrush === CalendarBrushes.mom,
-            [$style.tableWithPartnerBrush]: leaveStore.activeBrush === CalendarBrushes.partner,
-            [$style.tableWithEraserBrush]: leaveStore.activeBrush === CalendarBrushes.eraser,
-        }">
-                <template v-for="month in months">
-                    <thead>
-                    <tr>
-                        <th colspan="6" :class="$style.monthHeader">
-                            {{ month[2][0].date.toLocaleString('default', { month: 'long' }) }}
-                        </th>
-                    </tr>
-                    <tr>
-                        <th>Mon</th>
-                        <th>Tue</th>
-                        <th>Wed</th>
-                        <th>Thu</th>
-                        <th>Fri</th>
-                        <th :class="$style.weekend">Sat</th>
-                        <th :class="$style.weekend">Sun</th>
-                    </tr>
-                    </thead>
-                    <tr v-for="week in month">
-                        <td v-for="day in week"
-                            @mouseenter="() => onMouseEnter(day.date, day.visible)"
-                            @mousedown="() => onClick(day.date, day.visible)"
-                            :class="{[$style.dayColumn]: true, [$style.weekend]: day.date.getDay() === 6 || day.date.getDay() === 0}">
-                            <CalendarDay :date="day.date" :visible="day.visible" />
-                        </td>
-                    </tr>
-                </template>
+        <p>
+            <span :class="$style.brushIcon">🖌</span> Select a brush to draw on the calendar
+        </p>
+        <ul :class="$style.brushes">
+            <li @click="() => leaveStore.setActiveBrush(CalendarBrushes.mom)" :class="{
+            [$style.brush]: true,
+            [$style.brushMom]: true,
+            [$style.brushActive]: leaveStore.activeBrush === CalendarBrushes.mom
+        }">Mom</li>
+            <li @click="() => leaveStore.setActiveBrush(CalendarBrushes.partner)" :class="{
+            [$style.brush]: true,
+            [$style.brushPartner]: true,
+            [$style.brushActive]: leaveStore.activeBrush === CalendarBrushes.partner
+        }">Partner</li>
+            <li @click="() => leaveStore.setActiveBrush(CalendarBrushes.eraser)" :class="{
+            [$style.brush]: true,
+            [$style.brushEraser]: true,
+            [$style.brushActive]: leaveStore.activeBrush === CalendarBrushes.eraser
+        }">Eraser</li>
+        </ul>
+        <table :class="{
+        [$style.table]: true,
+        [$style.tableWithMomBrush]: leaveStore.activeBrush === CalendarBrushes.mom,
+        [$style.tableWithPartnerBrush]: leaveStore.activeBrush === CalendarBrushes.partner,
+        [$style.tableWithEraserBrush]: leaveStore.activeBrush === CalendarBrushes.eraser,
+    }">
+            <template v-for="month in months">
                 <thead>
                 <tr>
+                    <th colspan="6" :class="$style.monthHeader">
+                        {{ month[2][0].date.toLocaleString('default', { month: 'long' }) }}
+                    </th>
+                </tr>
+                <tr>
+                    <th>Mon</th>
+                    <th>Tue</th>
+                    <th>Wed</th>
+                    <th>Thu</th>
+                    <th>Fri</th>
+                    <th :class="$style.weekend">Sat</th>
+                    <th :class="$style.weekend">Sun</th>
                 </tr>
                 </thead>
-                <tbody>
-                </tbody>
-            </table>
-        </template>
+                <tr v-for="week in month">
+                    <td v-for="day in week"
+                        @mouseenter="() => onMouseEnter(day.date, day.visible)"
+                        @mousedown="() => onClick(day.date, day.visible)"
+                        :class="{[$style.dayColumn]: true, [$style.weekend]: day.date.getDay() === 6 || day.date.getDay() === 0}">
+                        <CalendarDay :date="day.date" :visible="day.visible" />
+                    </td>
+                </tr>
+            </template>
+        </table>
     </div>
 </template>
 

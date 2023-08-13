@@ -9,8 +9,10 @@ import LanguageSelector from '@/components/LanguageSelector.vue'
 import DaysChart from '@/components/DaysChart.vue'
 import Settings from '@/components/Settings.vue'
 import FinancialMonthly from '@/components/FinancialMonthly.vue'
+import { useLeaveStore } from '@/stores/leave'
 
 const { t } = translate()
+const leaveStore = useLeaveStore()
 </script>
 
 <template>
@@ -26,7 +28,7 @@ const { t } = translate()
                 <Settings />
                 <Calendar />
             </div>
-            <aside :class="$style.aside">
+            <aside :class="$style.aside" v-if="leaveStore.personal.dueDate">
                 <DaysChart />
                 <table :class="$style.table">
                     <DaysUsage />

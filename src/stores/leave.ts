@@ -176,7 +176,7 @@ export interface YearMonthRegulations {
 export const useLeaveStore = defineStore('leave', {
 	state: (): Leave => ({
 		personal: {
-			dueDate: new Date('2023-12-14'),
+			dueDate: null,
 			daysPerWeek: null,
 			grossYearlySalaryMom: null,
 			grossYearlySalarySecondParent: null,
@@ -742,7 +742,9 @@ export const useLeaveStore = defineStore('leave', {
 			}
 		},
 		setDueDate(dueDate: Date) {
-			this.personal.dueDate = dueDate
+			if (dueDate.getFullYear() > 2000) {
+				this.personal.dueDate = dueDate
+			}
 		},
 		setDragged() {
 			this.hasDragged = true

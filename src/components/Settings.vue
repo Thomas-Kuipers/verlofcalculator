@@ -13,6 +13,14 @@ const { t } = translate()
         <TextContent>
             <h2>{{ t('settingsTitle') }}</h2>
         </TextContent>
+        <div :class="$style.item">
+            <label :class="$style.label">{{ t('setDueDate') }}</label>
+            <input
+                type="date"
+                @change="event => leaveStore.setDueDate(new Date(event.currentTarget.value))"
+            />
+        </div>
+
         <ul :class="$style.list">
             <li :class="$style.item">
                 <label :class="$style.label">{{ t('settingsWorkDaysMom') }}</label>
@@ -34,13 +42,6 @@ const { t } = translate()
                     :class="$style.salaryInput"
                     type="number"
                     @keyup="event => leaveStore.setGrossYearlySalary(parseInt(event.currentTarget.value), true)"
-                />
-            </li>
-            <li :class="$style.item">
-                <label :class="$style.label">{{ t('setDueDate') }}</label>
-                <input
-                    type="date"
-                    @change="event => leaveStore.setDueDate(new Date(event.currentTarget.value))"
                 />
             </li>
             <li :class="$style.item">
