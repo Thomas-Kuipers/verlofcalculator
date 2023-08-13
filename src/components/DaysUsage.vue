@@ -24,8 +24,8 @@ const { t } = translate()
     />
     <tr>
         <td>{{ t('regulationsTotalDaysOff') }}</td>
-        <td>{{ leaveStore.totalDaysUsed(true) }}</td>
-        <td>{{ leaveStore.totalDaysUsed(false) }}</td>
+        <td :class="{[$style.maxedOut]: leaveStore.totalDaysUsed(true) > leaveStore.totalDaysOffAvailableMom }">{{ leaveStore.totalDaysUsed(true) }} / {{ leaveStore.totalDaysOffAvailableMom }}</td>
+        <td :class="{[$style.maxedOut]: leaveStore.totalDaysUsed(false) > leaveStore.totalDaysOffAvailablePartner }">{{ leaveStore.totalDaysUsed(false) }} / {{ leaveStore.totalDaysOffAvailablePartner }}</td>
     </tr>
 </template>
 
@@ -39,5 +39,10 @@ const { t } = translate()
 .column2,
 .column3 {
     width: 150px;
+}
+
+.maxedOut {
+    background: #f72020;
+    color: white;
 }
 </style>

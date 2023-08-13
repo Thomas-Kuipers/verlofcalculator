@@ -708,7 +708,22 @@ export const useLeaveStore = defineStore('leave', {
 
 				return income
 			}
-		}
+		},
+		totalDaysOffAvailable(state): (mom: boolean) => number {
+			return (mom) => {
+				const hours = (mom ? state.personal.workDaysMom : state.personal.workDaysPartner).length * 8
+
+				return state.regulations
+					.filter(regulation => mom ? regulation.mom : regulation.secondParent)
+					.reduce((acc, current) => acc + current.daysOff(hours), 0)
+			}
+		},
+		totalDaysOffAvailableMom(state): number {
+			return this.totalDaysOffAvailable(true)
+		},
+		totalDaysOffAvailablePartner(state): number {
+			return this.totalDaysOffAvailable(false)
+		},
 	},
 	actions: {
 		setDay(date: Date, off: boolean, mom: boolean) {

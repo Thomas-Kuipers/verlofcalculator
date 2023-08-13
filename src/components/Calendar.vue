@@ -117,12 +117,12 @@ function onMouseEnter(date: Date, visible: boolean) {
             [$style.brush]: true,
             [$style.brushMom]: true,
             [$style.brushActive]: leaveStore.activeBrush === CalendarBrushes.mom
-        }">Mom</li>
+        }">Mom is home</li>
             <li @click="() => leaveStore.setActiveBrush(CalendarBrushes.partner)" :class="{
             [$style.brush]: true,
             [$style.brushPartner]: true,
             [$style.brushActive]: leaveStore.activeBrush === CalendarBrushes.partner
-        }">Partner</li>
+        }">Partner is home</li>
             <li @click="() => leaveStore.setActiveBrush(CalendarBrushes.eraser)" :class="{
             [$style.brush]: true,
             [$style.brushEraser]: true,
