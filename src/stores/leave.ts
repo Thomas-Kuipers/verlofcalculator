@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { MessageSchema } from '@/main'
 
-export const uwvMaximumDagloon = Math.round(256.54)
+export const uwvMaximumDagloon = Math.round(304.25)
 export const seventyPercentOfMax = Math.round(.7 * uwvMaximumDagloon)
 export const officalAverageWorkingDaysPerYear = 261
 
